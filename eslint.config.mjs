@@ -1,31 +1,13 @@
-import { defineConfig } from "eslint/config";
+import { defineConfig, globalIgnores } from "eslint/config";
+import { FlatCompat } from "@eslint/eslintrc";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-export default defineConfig({
-  root: true,
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-  plugins: ["react", "react-hooks", "@next/next", "@typescript-eslint"],
-  extends: [
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:@next/next/recommended",
-    "plugin:@next/next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-  ],
-  settings: {
-    react: {
-      version: "detect",
-    },
-  },
-  env: {
-    browser: true,
-    node: true,
-  },
-  ignorePatterns: [".next/**", "out/**", "build/**", "next-env.d.ts"],
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({ baseDirectory: __dirname });
+
+export default defineConfig([
+  ...compat.extends("next/core-web-vitals"),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+]);

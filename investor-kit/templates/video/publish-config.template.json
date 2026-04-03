@@ -1,0 +1,30 @@
+[
+  {
+    "id": "promo-tr",
+    "title": "MuPark Promo TR (Main)",
+    "provider": "youtube",
+    "videoId": "",
+    "status": "draft",
+    "visibility": "unlisted",
+    "language": "tr"
+  },
+  {
+    "id": "promo-en",
+    "title": "MuPark Promo EN",
+    "provider": "vimeo",
+    "videoId": "",
+    "status": "draft",
+    "visibility": "private",
+    "language": "en"
+  },
+  {
+    "id": "teaser-vertical",
+    "title": "MuPark Teaser 9:16",
+    "provider": "mp4",
+    "url": "",
+    "status": "review",
+    "visibility": "unlisted",
+    "language": "tr"
+  }
+]
+

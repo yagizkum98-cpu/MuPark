@@ -1,16 +1,16 @@
-ï»¿import { randomUUID } from "crypto";
-import { connectDb } from "../lib/db/mongoose.ts";
-import { Reservation } from "../lib/models/reservation.ts";
-import { Transaction } from "../lib/models/transaction.ts";
-import { Zone } from "../lib/models/zone.ts";
-import { LiveSpot, type SpotStatus } from "../lib/models/liveSpot.ts";
+import { randomUUID } from "crypto";
+import { connectDb } from "../lib/db/mongoose";
+import { Reservation } from "../lib/models/reservation";
+import { Transaction } from "../lib/models/transaction";
+import { Zone } from "../lib/models/zone";
+import { LiveSpot, type SpotStatus } from "../lib/models/liveSpot";
 
 const zones = [
   {
-    name: "AtatÃ¼rk Caddesi",
-    slug: "atatÃ¼rk-caddesi",
+    name: "Atatürk Caddesi",
+    slug: "atatürk-caddesi",
     block: "A",
-    address: "AtatÃ¼rk Caddesi 12",
+    address: "Atatürk Caddesi 12",
     capacity: 12,
     hourlyRate: 4.2,
     status: "open",
@@ -20,10 +20,10 @@ const zones = [
     noShowPenalty: 35,
   },
   {
-    name: "KaragÃ¶zler",
+    name: "Karagözler",
     slug: "karagozler",
     block: "B",
-    address: "KaragÃ¶zler Sokak 8",
+    address: "Karagözler Sokak 8",
     capacity: 14,
     hourlyRate: 4.8,
     status: "open",
@@ -33,10 +33,10 @@ const zones = [
     noShowPenalty: 40,
   },
   {
-    name: "Ã‡arÅŸÄ± Caddesi",
+    name: "Çarþý Caddesi",
     slug: "carsi-caddesi",
     block: "C",
-    address: "Ã‡arÅŸÄ± Caddesi 27",
+    address: "Çarþý Caddesi 27",
     capacity: 10,
     hourlyRate: 5,
     status: "open",
@@ -129,7 +129,7 @@ async function run() {
   await LiveSpot.create(liveSpotDocs);
 
   console.log(
-    "Seeded Ã‚ÂµPark data with",
+    "Seeded ÂµPark data with",
     createdZones.length,
     "zones and",
     liveSpotDocs.length,

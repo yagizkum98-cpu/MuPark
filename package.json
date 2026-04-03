@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "ts-node --esm scripts/seed.ts"
+    "seed": "ts-node --esm scripts/seed.ts",
+    "pitch:init": "ts-node --esm scripts/init-pitch-kit.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

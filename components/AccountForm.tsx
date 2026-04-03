@@ -1,12 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 
-const kvkkSummary = [
-  {
-    title: "Veri Sorumlusu",
-    value: "MU PARK Smart Parking Teknolojileri A.S.",
-  },
+const trKvkkSummary = [
+  { title: "Veri Sorumlusu", value: "MU PARK Smart Parking Teknolojileri A.S." },
   {
     title: "Islenen Kisisel Veri Turleri",
     value: "Ad, soyad, e-posta, telefon, kimlik bilgisi, sozlesme kayitlari, kullanim verileri.",
@@ -15,17 +13,28 @@ const kvkkSummary = [
     title: "Isleme Amaclari",
     value: "Uyelik yonetimi, destek ve bildirimler, platform guvenligi, hizmet iyilestirme.",
   },
+  { title: "Hukuki Dayanak", value: "KVKK Md.5/2 (sozlesmenin yerine getirilmesi, acik riza)." },
+  { title: "Saklama Suresi", value: "Uyelik suresi ve sonrasinda 3 yil boyunca saklanir." },
+];
+
+const enKvkkSummary = [
+  { title: "Data Controller", value: "MU PARK Smart Parking Technologies Inc." },
   {
-    title: "Hukuki Dayanak",
-    value: "KVKK Md.5/2 (sozlesmenin yerine getirilmesi, acik riza).",
+    title: "Processed Personal Data",
+    value: "Name, surname, e-mail, phone, identity details, contract records, usage data.",
   },
   {
-    title: "Saklama Suresi",
-    value: "Uyelik suresi ve sonrasinda 3 yil boyunca saklanir.",
+    title: "Processing Purposes",
+    value: "Account management, support and notifications, platform security, service improvement.",
   },
+  { title: "Legal Basis", value: "Data Protection Art.5/2 (contract performance, explicit consent)." },
+  { title: "Retention Period", value: "Stored during membership and for 3 years after termination." },
 ];
 
 export default function AccountForm() {
+  const { lang } = useLanguage();
+  const kvkkSummary = lang === "tr" ? trKvkkSummary : enKvkkSummary;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [consent, setConsent] = useState(false);
@@ -48,52 +57,53 @@ export default function AccountForm() {
 
   const status = useMemo(() => {
     if (!email || !password) {
-      return "E-posta ve sifre ile devam edin.";
+      return lang === "tr" ? "E-posta ve sifre ile devam edin." : "Continue with e-mail and password.";
     }
     if (mode === "register" && showRegisterDetails && hasMissingProfileField) {
-      return "Detayli uye bilgilerini tamamlayin.";
+      return lang === "tr" ? "Detayli uye bilgilerini tamamlayin." : "Complete the detailed member profile.";
     }
     if (mode === "register" && !consent) {
-      return "KVKK onayi vermeden uye olunamaz.";
+      return lang === "tr" ? "KVKK onayi vermeden uye olunamaz." : "You cannot register without consent.";
     }
-    return `Hazir: ${mode === "register" ? "Yeni uyelik" : "Oturum acma"}.`;
-  }, [email, password, consent, mode, showRegisterDetails, hasMissingProfileField]);
+    return lang === "tr" ? `Hazir: ${mode === "register" ? "Yeni uyelik" : "Oturum acma"}.` : `Ready: ${mode === "register" ? "New registration" : "Sign in"}.`;
+  }, [email, password, consent, mode, showRegisterDetails, hasMissingProfileField, lang]);
 
   const handleProfileChange = (key: keyof typeof profile, value: string) => {
-    setProfile((current) => ({
-      ...current,
-      [key]: value,
-    }));
+    setProfile((current) => ({ ...current, [key]: value }));
   };
 
   const handleSubmit = (selectedMode: "register" | "login") => {
     setMode(selectedMode);
 
     if (!email || !password) {
-      setFeedback("Lutfen once e-posta ve sifrenizi girin.");
+      setFeedback(lang === "tr" ? "Lutfen once e-posta ve sifrenizi girin." : "Please enter your e-mail and password first.");
       return;
     }
 
     if (selectedMode === "register" && !showRegisterDetails) {
       setShowRegisterDetails(true);
-      setFeedback("Devam etmek icin detayli uye bilgilerini doldurun.");
+      setFeedback(lang === "tr" ? "Devam etmek icin detayli uye bilgilerini doldurun." : "Fill in detailed member information to continue.");
       return;
     }
 
     if (selectedMode === "register" && hasMissingProfileField) {
-      setFeedback("Lutfen tum detayli uye bilgilerini doldurun.");
+      setFeedback(lang === "tr" ? "Lutfen tum detayli uye bilgilerini doldurun." : "Please complete all detailed profile fields.");
       return;
     }
 
     if (selectedMode === "register" && !consent) {
-      setFeedback("KVKK aydinlatma metnini okuyup onaylamalisiniz.");
+      setFeedback(lang === "tr" ? "KVKK aydinlatma metnini okuyup onaylamalisiniz." : "You must read and accept the data policy.");
       return;
     }
 
     setFeedback(
       selectedMode === "register"
-        ? "Yeni uyeliginiz icin e-posta adresinize dogrulama baglantisi gonderildi."
-        : "Giris bilgileri dogrulandi, sizi yonlendiriyoruz."
+        ? lang === "tr"
+          ? "Yeni uyeliginiz icin e-posta adresinize dogrulama baglantisi gonderildi."
+          : "A verification link has been sent to your e-mail for your new membership."
+        : lang === "tr"
+        ? "Giris bilgileri dogrulandi, sizi yonlendiriyoruz."
+        : "Login details verified, redirecting you."
     );
   };
 
@@ -111,128 +121,86 @@ export default function AccountForm() {
   }, []);
 
   return (
-    <section id="account" className="py-24 bg-gradient-to-b from-[#020409] via-[#030712] to-[#05060d] text-white">
+    <section id="account" className="py-24 bg-gradient-to-b from-cyan-50 via-white to-cyan-50/60 text-slate-900">
       <div id="account-register" />
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2">
           <div className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.5em] text-cyan-400">Uyelik & KVKK</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Giris yapin veya kaydolun</h2>
+            <p className="text-xs uppercase tracking-[0.5em] text-cyan-400">{lang === "tr" ? "Uyelik ve KVKK" : "Membership and Data Policy"}</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">{lang === "tr" ? "Giris yapin veya kaydolun" : "Sign in or register"}</h2>
             <p className="text-muted text-sm md:text-base">
-              MU PARK platformuna erismek icin e-posta/sifre girin. Yeni kullaniciysaniz KVKK aydinlatma metnini
-              onaylayip detayli uye bilgilerini doldurarak kayit olusturun.
+              {lang === "tr"
+                ? "MU PARK platformuna erismek icin e-posta/sifre girin. Yeni kullaniciysaniz KVKK aydinlatma metnini onaylayip detayli uye bilgilerini doldurarak kayit olusturun."
+                : "Use e-mail/password to access MU PARK. New users should review the data policy and complete detailed profile information to register."}
             </p>
-            <div className="grid gap-3 rounded-2xl border border-white/5 bg-white/5 p-4 text-sm text-white/80">
+            <div className="grid gap-3 rounded-2xl border border-cyan-100 bg-white p-4 text-sm text-slate-700">
               {kvkkSummary.map((item) => (
                 <div key={item.title} className="flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-[0.3em] text-cyan-200">{item.title}</span>
-                  <p className="text-white/80">{item.value}</p>
+                  <span className="text-xs uppercase tracking-[0.3em] text-cyan-700">{item.title}</span>
+                  <p className="text-slate-700">{item.value}</p>
                 </div>
               ))}
-              <p className="text-xs text-white/60">
-                KVKK kapsamindaki haklariniz (erisim, duzeltme, silme, itiraz) icin support@mupark.local uzerinden
-                destek alabilirsiniz.
+              <p className="text-xs text-slate-500">
+                {lang === "tr"
+                  ? "KVKK kapsamindaki haklariniz (erisim, duzeltme, silme, itiraz) icin support@mupark.local uzerinden destek alabilirsiniz."
+                  : "For your data rights (access, correction, deletion, objection), contact support@mupark.local."}
               </p>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/5 bg-white/10 p-6 shadow-[0_20px_60px_rgba(2,12,28,0.8)]">
+          <div className="rounded-3xl border border-cyan-100 bg-white p-6 shadow-[0_20px_40px_rgba(20,184,166,0.12)]">
             <div className="space-y-4">
               <div>
-                <label className="text-xs uppercase tracking-[0.3em] text-cyan-200">E-posta</label>
+                <label className="text-xs uppercase tracking-[0.3em] text-cyan-700">{lang === "tr" ? "E-posta" : "E-mail"}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white outline-none focus:border-cyan-500"
+                  className="mt-2 w-full rounded-2xl border border-cyan-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-cyan-500"
                   placeholder="info@mupark.local"
                 />
               </div>
               <div>
-                <label className="text-xs uppercase tracking-[0.3em] text-cyan-200">Sifre</label>
+                <label className="text-xs uppercase tracking-[0.3em] text-cyan-700">{lang === "tr" ? "Sifre" : "Password"}</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white outline-none focus:border-cyan-500"
-                  placeholder="Guclu bir sifre girin"
+                  className="mt-2 w-full rounded-2xl border border-cyan-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-cyan-500"
+                  placeholder={lang === "tr" ? "Guclu bir sifre girin" : "Enter a strong password"}
                 />
               </div>
 
               {showRegisterDetails && (
-                <div className="rounded-2xl border border-cyan-500/20 bg-black/40 p-4 space-y-3">
-                  <p className="text-xs uppercase tracking-[0.3em] text-cyan-200">Detayli Ozel Bilgiler</p>
+                <div className="rounded-2xl border border-cyan-200 bg-cyan-50/50 p-4 space-y-3">
+                  <p className="text-xs uppercase tracking-[0.3em] text-cyan-700">
+                    {lang === "tr" ? "Detayli Ozel Bilgiler" : "Detailed Profile Information"}
+                  </p>
                   <div className="grid gap-3 md:grid-cols-2">
-                    <input
-                      type="text"
-                      value={profile.firstName}
-                      onChange={(event) => handleProfileChange("firstName", event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                      placeholder="Ad"
-                    />
-                    <input
-                      type="text"
-                      value={profile.lastName}
-                      onChange={(event) => handleProfileChange("lastName", event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                      placeholder="Soyad"
-                    />
-                    <input
-                      type="tel"
-                      value={profile.phone}
-                      onChange={(event) => handleProfileChange("phone", event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                      placeholder="Telefon"
-                    />
-                    <input
-                      type="text"
-                      value={profile.tcKimlik}
-                      onChange={(event) => handleProfileChange("tcKimlik", event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                      placeholder="TC Kimlik No"
-                    />
-                    <input
-                      type="text"
-                      value={profile.city}
-                      onChange={(event) => handleProfileChange("city", event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                      placeholder="Il"
-                    />
-                    <input
-                      type="text"
-                      value={profile.district}
-                      onChange={(event) => handleProfileChange("district", event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                      placeholder="Ilce"
-                    />
+                    <input type="text" value={profile.firstName} onChange={(event) => handleProfileChange("firstName", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "Ad" : "First Name"} />
+                    <input type="text" value={profile.lastName} onChange={(event) => handleProfileChange("lastName", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "Soyad" : "Last Name"} />
+                    <input type="tel" value={profile.phone} onChange={(event) => handleProfileChange("phone", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "Telefon" : "Phone"} />
+                    <input type="text" value={profile.tcKimlik} onChange={(event) => handleProfileChange("tcKimlik", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "TC Kimlik No" : "National ID"} />
+                    <input type="text" value={profile.city} onChange={(event) => handleProfileChange("city", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "Il" : "City"} />
+                    <input type="text" value={profile.district} onChange={(event) => handleProfileChange("district", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "Ilce" : "District"} />
                   </div>
-                  <input
-                    type="text"
-                    value={profile.address}
-                    onChange={(event) => handleProfileChange("address", event.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                    placeholder="Acik adres"
-                  />
-                  <input
-                    type="text"
-                    value={profile.emergencyContact}
-                    onChange={(event) => handleProfileChange("emergencyContact", event.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-cyan-500"
-                    placeholder="Acil durumda aranacak kisi"
-                  />
+                  <input type="text" value={profile.address} onChange={(event) => handleProfileChange("address", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "Acik adres" : "Full address"} />
+                  <input type="text" value={profile.emergencyContact} onChange={(event) => handleProfileChange("emergencyContact", event.target.value)} className="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-cyan-500" placeholder={lang === "tr" ? "Acil durumda aranacak kisi" : "Emergency contact"} />
                 </div>
               )}
 
-              <label className="flex items-start gap-3 text-xs text-white/80">
+              <label className="flex items-start gap-3 text-xs text-slate-700">
                 <input
                   type="checkbox"
                   checked={consent}
                   onChange={(event) => setConsent(event.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border border-white/20 bg-black/60 text-cyan-500 focus:ring-cyan-500"
+                  className="mt-1 h-4 w-4 rounded border border-cyan-300 bg-white text-cyan-600 focus:ring-cyan-500"
                 />
-                KVKK Aydinlatma Metni'ni okudum, acik rizam ile kisisel verilerimin islenmesini kabul ediyorum.
+                {lang === "tr"
+                  ? "KVKK Aydinlatma Metni'ni okudum, acik rizam ile kisisel verilerimin islenmesini kabul ediyorum."
+                  : "I have read the data policy and consent to processing of my personal data."}
               </label>
-              <p className="text-xs text-white/60">{status}</p>
+              <p className="text-xs text-slate-500">{status}</p>
               {feedback && <p className="text-xs text-cyan-300">{feedback}</p>}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -241,14 +209,14 @@ export default function AccountForm() {
                 onClick={() => handleSubmit("register")}
                 className="flex-1 rounded-2xl bg-cyan-500 px-4 py-3 text-center text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-cyan-400"
               >
-                Uye Ol
+                {lang === "tr" ? "Uye Ol" : "Register"}
               </button>
               <button
                 type="button"
                 onClick={() => handleSubmit("login")}
-                className="flex-1 rounded-2xl border border-white/10 px-4 py-3 text-center text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:border-white/40"
+                className="flex-1 rounded-2xl border border-cyan-300 px-4 py-3 text-center text-sm font-semibold uppercase tracking-[0.3em] text-cyan-900 transition hover:border-cyan-500 hover:bg-cyan-50"
               >
-                Giris Yap
+                {lang === "tr" ? "Giris Yap" : "Sign In"}
               </button>
             </div>
           </div>

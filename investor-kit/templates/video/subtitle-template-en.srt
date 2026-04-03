@@ -1,0 +1,24 @@
+1
+00:00:00,000 --> 00:00:08,000
+One of the biggest invisible urban problems is finding parking.
+
+2
+00:00:08,000 --> 00:00:20,000
+MuPark tracks occupancy in real time and enables instant reservation.
+
+3
+00:00:20,000 --> 00:00:35,000
+Drivers enter with QR and reserved areas stay protected.
+
+4
+00:00:35,000 --> 00:00:50,000
+Municipality teams monitor operations in a single live dashboard.
+
+5
+00:00:50,000 --> 00:01:05,000
+EV corner campaigns support sustainable mobility.
+
+6
+00:01:05,000 --> 00:01:15,000
+MuPark digitizes parking operations and eases traffic pressure.
+

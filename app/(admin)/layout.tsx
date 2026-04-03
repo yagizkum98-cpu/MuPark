@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/services/auth";
 
 const sections = [
+  { label: "Tum Veriler", href: "/admin/panel" },
   { label: "Dashboard", href: "/admin/dashboard" },
   { label: "Analytics", href: "/admin/analytics" },
   { label: "Revenue", href: "/admin/revenue" },
