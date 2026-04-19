@@ -122,36 +122,36 @@ export default function EntryGamification() {
   };
 
   return (
-    <section id="gorev-akisi" className="relative py-20 overflow-hidden">
+    <section id="gorev-akisi" className="neon-grid relative overflow-hidden py-20">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(6,182,212,0.12),transparent_45%)]" />
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container relative z-10 mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="max-w-5xl mx-auto rounded-3xl border border-cyan-100 bg-white/85 backdrop-blur-sm p-6 md:p-8"
+          className="neon-shell mx-auto max-w-5xl rounded-3xl p-6 md:p-8"
         >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-8">
+          <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-cyan-700">
+              <p className="text-xs uppercase tracking-[0.25em] text-[color:var(--accent-strong)]">
                 {lang === "tr" ? "Giriste Oyunlastirma" : "Gamified Entry"}
               </p>
-              <h2 className="mt-2 text-3xl md:text-4xl font-bold text-slate-900">
+              <h2 className="mt-2 text-3xl font-bold text-[color:var(--hero-title)] md:text-4xl">
                 {lang === "tr" ? "4 Adimli Girisim Hikayesi" : "4-Step Venture Story"}
               </h2>
-              <p className="mt-2 text-sm md:text-base text-slate-600">
+              <p className="mt-2 text-sm text-[color:var(--muted)] md:text-base">
                 {lang === "tr"
                   ? "Sayfa acildiginda sistem problemi, etkisini, cozumu ve sonuc dogrulamasini adim adim anlatir."
                   : "On page load, the system narrates the problem, impact, solution, and KPI validation step by step."}
               </p>
             </div>
-            <div className="min-w-56 rounded-2xl border border-cyan-300 bg-cyan-100/70 p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-cyan-700">
+            <div className="min-w-56 rounded-2xl border border-cyan-300/30 bg-cyan-400/10 p-4 shadow-[0_0_32px_rgba(34,211,238,0.12)]">
+              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--accent-strong)]">
                 {lang === "tr" ? "Giris Durumu" : "Entry Progress"}
               </p>
-              <p className="mt-2 text-3xl font-extrabold text-slate-900">%{completionRate}</p>
-              <div className="mt-3 h-2 rounded-full bg-cyan-200/70 overflow-hidden">
+              <p className="mt-2 text-3xl font-extrabold text-[color:var(--hero-title)]">%{completionRate}</p>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-950/20">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${completionRate}%` }}
@@ -162,7 +162,7 @@ export default function EntryGamification() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4 mb-6">
+          <div className="mb-6 grid gap-4 md:grid-cols-4">
             {storySteps.map((step, index) => {
               const done = index < currentStep;
               const activeStep = index === currentStep;
@@ -170,10 +170,10 @@ export default function EntryGamification() {
                 <div
                   key={step.id}
                   className={cn(
-                    "rounded-xl border px-3 py-2 text-xs md:text-sm transition-colors",
-                    activeStep && "border-cyan-400/70 bg-cyan-100 text-cyan-900",
-                    done && "border-emerald-400/60 bg-emerald-100 text-emerald-800",
-                    !activeStep && !done && "border-slate-200 bg-white text-slate-500"
+                    "rounded-xl border px-3 py-2 text-xs transition-colors md:text-sm",
+                    activeStep && "border-cyan-400/70 bg-cyan-400/10 text-[color:var(--accent-text)]",
+                    done && "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
+                    !activeStep && !done && "border-[color:var(--panel-border)] bg-[var(--surface-soft)] text-[color:var(--muted)]"
                   )}
                 >
                   {step.title}
@@ -189,55 +189,55 @@ export default function EntryGamification() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25 }}
-              className="rounded-2xl border border-cyan-100 bg-white p-5 md:p-6"
+              className="neon-card rounded-2xl p-5 md:p-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-cyan-100 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-800">
-                    <active.icon className="w-3.5 h-3.5" />
+                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-[color:var(--accent-strong)]">
+                    <active.icon className="h-3.5 w-3.5" />
                     {lang === "tr" ? `Adim ${active.id}` : `Step ${active.id}`}
                   </div>
-                  <h3 className="mt-4 text-2xl md:text-3xl font-bold text-slate-900">{active.subtitle}</h3>
-                  <p className="mt-3 max-w-3xl text-sm md:text-base text-slate-700">{active.detail}</p>
+                  <h3 className="mt-4 text-2xl font-bold text-[color:var(--hero-title)] md:text-3xl">{active.subtitle}</h3>
+                  <p className="mt-3 max-w-3xl text-sm text-[color:var(--muted)] md:text-base">{active.detail}</p>
                 </div>
-                <span className="shrink-0 rounded-full border border-emerald-400/50 bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                <span className="shrink-0 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
                   {active.reward}
                 </span>
               </div>
             </motion.article>
           </AnimatePresence>
 
-          <div className="mt-6 rounded-2xl border border-cyan-100 bg-white p-4 flex items-center justify-between gap-4 flex-wrap">
-            <p className="text-sm text-slate-700">
+          <div className="neon-card mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl p-4">
+            <p className="text-sm text-[color:var(--muted)]">
               {isLast
                 ? lang === "tr"
                   ? "Girisim hikayesi tamamlandi. Ziyaretci simdi demo ve ozelliklere gecmeye hazir."
                   : "Venture story completed. The visitor is now ready to move to demo and features."
                 : lang === "tr"
-                ? "Sonraki adim ile hikayeyi ilerlet."
-                : "Proceed to the next step to advance the story."}
+                  ? "Sonraki adim ile hikayeyi ilerlet."
+                  : "Proceed to the next step to advance the story."}
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
                 disabled={currentStep === 0}
-                className="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="rounded-xl border border-[color:var(--panel-border)] px-4 py-2 text-sm text-[color:var(--foreground)] transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {lang === "tr" ? "Geri" : "Back"}
               </button>
               <button
                 onClick={handleNext}
-                className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-black transition hover:bg-cyan-400"
+                className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.24)] transition hover:bg-cyan-300"
               >
                 {isLast ? (lang === "tr" ? "Tamamlandi" : "Completed") : lang === "tr" ? "Sonraki Adim" : "Next Step"}
-                {!isLast && <ArrowRight className="w-4 h-4" />}
+                {!isLast && <ArrowRight className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
           <div className="mt-4 flex items-center justify-end">
-            <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-cyan-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-800">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--accent-strong)]">
+              <CheckCircle2 className="h-3.5 w-3.5" />
               XP: {totalXp}/100
             </span>
           </div>

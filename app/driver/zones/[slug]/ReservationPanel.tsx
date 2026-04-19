@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 
 interface Reservation {
   _id: string;
-  status: "pending" | "active" | "completed" | "cancelled";
+  status: "pending" | "approved" | "active" | "completed" | "cancelled";
   code: string;
   paymentStatus: "pending" | "paid" | "failed";
   totalAmount?: number;
@@ -110,7 +110,7 @@ export default function ReservationPanel({ zoneId }: Props) {
     );
   }
 
-  const canStart = reservation && reservation.status === "pending";
+  const canStart = reservation && (reservation.status === "pending" || reservation.status === "approved");
   const canEnd = reservation && reservation.status === "active";
   const canPay = reservation && reservation.status === "completed" && reservation.paymentStatus !== "paid";
 

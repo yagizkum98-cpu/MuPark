@@ -14,7 +14,7 @@
 | 2 | 8-20 sec | MuPark live occupancy map | "Real-time occupancy tracking" | Solution 1 |
 | 3 | 20-35 sec | Mobile reservation + QR entry animation | "Reserve fast, enter quickly" | Solution 2 |
 | 4 | 35-50 sec | Municipality dashboard metrics | "Live operations visibility" | Operations |
-| 5 | 50-65 sec | EV corner and charging visuals | "EV-friendly campaign model" | EV |
+| 5 | 50-65 sec | Live occupancy panel and reservation flow | "Phase one smart parking focus" | Product |
 | 6 | 65-75 sec | Brand logo + CTA | "Smarter parking with MuPark" | Closing |
 
 ## Asset Checklist

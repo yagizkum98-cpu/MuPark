@@ -47,7 +47,7 @@ export default function CorporateHub() {
               { title: "Hizli Tepki", desc: "Operasyon panelinde aninda aksiyon.", icon: Zap },
             ],
             flowItems: [
-              { title: "Park Yeri Bul", desc: "Müsait alanlari tara.", icon: Search },
+              { title: "Park Yeri Bul", desc: "Musait alanlari tara.", icon: Search },
               { title: "Rezervasyon Yap", desc: "Saniyeler icinde kilitle.", icon: CalendarCheck },
               { title: "Rotaya Basla", desc: "Navigasyonla ulas.", icon: Navigation },
               { title: "QR ile Park Et", desc: "Kod okut, giris tamam.", icon: QrCode },
@@ -104,19 +104,19 @@ export default function CorporateHub() {
   );
 
   return (
-    <section id="corporate" className="py-24 bg-white/60 relative overflow-hidden">
+    <section id="corporate" className="neon-grid relative overflow-hidden bg-white/60 py-24">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(20,184,166,0.14),transparent_45%)]" />
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold uppercase tracking-wide mb-5 border border-cyan-200">
-            <Flag className="w-4 h-4" />
+      <div className="container relative z-10 mx-auto px-6">
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-[color:var(--accent-strong)]">
+            <Flag className="h-4 w-4" />
             {copy.badge}
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{copy.title}</h2>
-          <p className="text-slate-600 text-lg">{copy.subtitle}</p>
+          <h2 className="mb-4 text-3xl font-bold text-[color:var(--hero-title)] md:text-4xl">{copy.title}</h2>
+          <p className="text-lg text-[color:var(--muted)]">{copy.subtitle}</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mb-10">
+        <div className="mb-10 grid gap-4 md:grid-cols-3">
           {copy.xp.map((item, index) => (
             <motion.div
               key={item.label}
@@ -124,67 +124,67 @@ export default function CorporateHub() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.08 }}
-              className="rounded-2xl border border-cyan-200/70 bg-gradient-to-br from-cyan-50 to-white p-5"
+              className="neon-card rounded-2xl p-5"
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-slate-600">{item.label}</span>
-                <item.icon className="w-4 h-4 text-cyan-700" />
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm text-[color:var(--muted)]">{item.label}</span>
+                <item.icon className="h-4 w-4 text-[color:var(--accent-text)]" />
               </div>
-              <p className="text-2xl font-extrabold text-slate-900">{item.value}</p>
+              <p className="text-2xl font-extrabold text-[color:var(--hero-title)]">{item.value}</p>
             </motion.div>
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div className="rounded-3xl border border-cyan-200 bg-white/90 p-7">
-            <h3 className="text-xl font-bold text-slate-900 mb-4">{copy.featuresTitle}</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="neon-shell rounded-3xl p-7">
+            <h3 className="mb-4 text-xl font-bold text-[color:var(--hero-title)]">{copy.featuresTitle}</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
               {copy.featureItems.map((feature) => (
-                <div key={feature.title} className="rounded-2xl border border-cyan-100 bg-cyan-50/45 p-4">
-                  <feature.icon className="w-5 h-5 text-cyan-700 mb-2" />
-                  <p className="font-semibold text-slate-900">{feature.title}</p>
-                  <p className="text-sm text-slate-600">{feature.desc}</p>
+                <div key={feature.title} className="neon-card data-stream rounded-2xl p-4">
+                  <feature.icon className="mb-2 h-5 w-5 text-[color:var(--accent-text)]" />
+                  <p className="font-semibold text-[color:var(--hero-title)]">{feature.title}</p>
+                  <p className="text-sm text-[color:var(--muted)]">{feature.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-3xl border border-cyan-200 bg-white/90 p-7">
-            <h3 className="text-xl font-bold text-slate-900 mb-4">{copy.howTitle}</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
+          <div className="neon-shell rounded-3xl p-7">
+            <h3 className="mb-4 text-xl font-bold text-[color:var(--hero-title)]">{copy.howTitle}</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
               {copy.flowItems.map((step) => (
-                <div key={step.title} className="rounded-2xl border border-cyan-100 bg-cyan-50/45 p-4 relative">
-                  <step.icon className="w-5 h-5 text-cyan-700 mb-2" />
-                  <p className="font-semibold text-slate-900">{step.title}</p>
-                  <p className="text-sm text-slate-600">{step.desc}</p>
+                <div key={step.title} className="neon-card data-stream rounded-2xl p-4">
+                  <step.icon className="mb-2 h-5 w-5 text-[color:var(--accent-text)]" />
+                  <p className="font-semibold text-[color:var(--hero-title)]">{step.title}</p>
+                  <p className="text-sm text-[color:var(--muted)]">{step.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 mt-8">
-          <div className="rounded-3xl border border-cyan-200 bg-white/90 p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <HeartHandshake className="w-5 h-5 text-cyan-700" />
-              <h3 className="font-bold text-slate-900">{copy.missionTitle}</h3>
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="neon-card rounded-3xl p-6">
+            <div className="mb-3 flex items-center gap-2">
+              <HeartHandshake className="h-5 w-5 text-[color:var(--accent-text)]" />
+              <h3 className="font-bold text-[color:var(--hero-title)]">{copy.missionTitle}</h3>
             </div>
-            <p className="text-slate-600">{copy.mission}</p>
+            <p className="text-[color:var(--muted)]">{copy.mission}</p>
           </div>
-          <div className="rounded-3xl border border-cyan-200 bg-white/90 p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Eye className="w-5 h-5 text-cyan-700" />
-              <h3 className="font-bold text-slate-900">{copy.visionTitle}</h3>
+          <div className="neon-card rounded-3xl p-6">
+            <div className="mb-3 flex items-center gap-2">
+              <Eye className="h-5 w-5 text-[color:var(--accent-text)]" />
+              <h3 className="font-bold text-[color:var(--hero-title)]">{copy.visionTitle}</h3>
             </div>
-            <p className="text-slate-600">{copy.vision}</p>
+            <p className="text-[color:var(--muted)]">{copy.vision}</p>
           </div>
-          <div className="rounded-3xl border border-cyan-200 bg-white/90 p-6">
-            <h3 className="font-bold text-slate-900 mb-3">{copy.valuesTitle}</h3>
+          <div className="neon-card rounded-3xl p-6">
+            <h3 className="mb-3 font-bold text-[color:var(--hero-title)]">{copy.valuesTitle}</h3>
             <div className="flex flex-wrap gap-2">
               {copy.values.map((value) => (
                 <span
                   key={value}
-                  className="px-3 py-1.5 rounded-full bg-cyan-100 border border-cyan-200 text-cyan-900 text-sm font-medium"
+                  className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-sm font-medium text-[color:var(--accent-text)]"
                 >
                   {value}
                 </span>
@@ -193,16 +193,16 @@ export default function CorporateHub() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-cyan-200 bg-white/90 p-6 mt-8">
-          <h3 className="font-bold text-slate-900 mb-4">{copy.goalsTitle}</h3>
-          <div className="grid md:grid-cols-3 gap-5">
+        <div className="neon-shell mt-8 rounded-3xl p-6">
+          <h3 className="mb-4 font-bold text-[color:var(--hero-title)]">{copy.goalsTitle}</h3>
+          <div className="grid gap-5 md:grid-cols-3">
             {copy.goalItems.map((goal) => (
-              <div key={goal.label} className="rounded-2xl border border-cyan-100 bg-cyan-50/40 p-4">
-                <p className="text-sm font-semibold text-slate-900 mb-3">{goal.label}</p>
-                <div className="h-2 rounded-full bg-cyan-100 overflow-hidden">
+              <div key={goal.label} className="neon-card rounded-2xl p-4">
+                <p className="mb-3 text-sm font-semibold text-[color:var(--hero-title)]">{goal.label}</p>
+                <div className="h-2 overflow-hidden rounded-full bg-cyan-950/20">
                   <div className="h-full bg-gradient-to-r from-cyan-500 to-teal-500" style={{ width: `${goal.progress}%` }} />
                 </div>
-                <p className="text-xs text-slate-500 mt-2">%{goal.progress}</p>
+                <p className="mt-2 text-xs text-[color:var(--muted)]">%{goal.progress}</p>
               </div>
             ))}
           </div>

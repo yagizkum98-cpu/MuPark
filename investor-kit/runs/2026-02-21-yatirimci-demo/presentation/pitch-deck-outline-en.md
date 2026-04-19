@@ -23,7 +23,7 @@
 
 - Find -> Reserve -> Navigate -> Park
 - Live operations panel for municipalities/operators
-- EV corner campaign model
+- Phase 1 focus: smart parking reservation and live occupancy tracking
 
 ## 5. Why Now
 

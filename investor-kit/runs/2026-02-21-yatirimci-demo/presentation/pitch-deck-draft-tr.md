@@ -37,11 +37,11 @@ Kaynaklar: `scripts/seed.ts`, `components/LiveDemo.tsx`, `components/HowItWorks.
 
 Not: Bu KPI'lar pilot saha metrikleri geldikce update edilecek.
 
-## 6. EV ve Surdurulebilirlik
+## 6. Faz 1 Urun Odagi
 
-- Zone basina 2 EV kose (toplam 6 adet)
-- EV kose orani: %16.7
-- Kampanya modeli: ilk 100 dakika MuPark hediyesi
+- Tum park alanlari standart akilli park yeri olarak yonetiliyor
+- Odak: canli doluluk, rezervasyon ve saha operasyonu
+- Kapsam disi: premium ek moduller ve ileri entegrasyonlar
 
 ## 7. Is Modeli
 
@@ -60,7 +60,7 @@ Not: Bu KPI'lar pilot saha metrikleri geldikce update edilecek.
 - Q1: Pilot veri dogrulama ve metrik dashboard standardizasyonu
 - Q2: Belediye odakli raporlama paketi ve SLA modeli
 - Q3: Ticari yayginlastirma (yeni zone rollout)
-- Q4: EV odakli premium paket ve entegrasyonlar
+- Q4: Raporlama, entegrasyon ve premium belediye modulleri
 
 ## 10. Yatirim Talebi (Taslak)
 

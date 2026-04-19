@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const { Schema, model, models } = mongoose;
 
-export type ReservationStatus = "pending" | "active" | "completed" | "cancelled";
+export type ReservationStatus = "pending" | "approved" | "active" | "completed" | "cancelled";
 export type PaymentStatus = "pending" | "paid" | "failed";
 
 export interface ReservationDocument extends mongoose.Document {
@@ -35,7 +35,7 @@ const reservationSchema = new Schema<ReservationDocument>(
     totalAmount: { type: Number },
     status: {
       type: String,
-      enum: ["pending", "active", "completed", "cancelled"],
+      enum: ["pending", "approved", "active", "completed", "cancelled"],
       default: "pending",
     },
     paymentStatus: {

@@ -15,7 +15,7 @@ Bu dosya sunumdaki tum sayisal iddialarin kaynagini bir yerde toplar.
 - AI dogruluk orani (%):
 - Anlik veri gecikmesi (sn):
 - Canli izlenen park alani sayisi:
-- EV kosesi kullanim orani:
+- Rezervasyon doluluk donusum orani:
 - Rezerve / fiili kullanim donusumu (%):
 
 ## 3) Ticari KPI

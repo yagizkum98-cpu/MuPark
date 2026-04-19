@@ -1,7 +1,9 @@
 import CitizenServiceForm from "@/components/fethiye/CitizenServiceForm";
+import FethiyeParkingMap from "@/components/fethiye/FethiyeParkingMap";
 import { connectDb } from "@/lib/db/mongoose";
 import { FethiyeNews } from "@/lib/models/fethiyeNews";
 import { FethiyeEvent } from "@/lib/models/fethiyeEvent";
+import { getFethiyeZonesWithStats } from "@/lib/services/zone";
 
 function formatDate(value: Date) {
   return new Intl.DateTimeFormat("tr-TR", {
@@ -14,9 +16,10 @@ function formatDate(value: Date) {
 export default async function FethiyePortalPage() {
   await connectDb();
 
-  const [news, events] = await Promise.all([
+  const [news, events, zones] = await Promise.all([
     FethiyeNews.find({ isActive: true }).sort({ publishedAt: -1 }).limit(6).lean(),
     FethiyeEvent.find({ isActive: true }).sort({ startsAt: 1 }).limit(6).lean(),
+    getFethiyeZonesWithStats(),
   ]);
 
   return (
@@ -53,6 +56,15 @@ export default async function FethiyePortalPage() {
         </article>
 
         <CitizenServiceForm />
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-10">
+        <FethiyeParkingMap
+          zones={zones}
+          token={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+          title="Fethiye akilli park haritasi"
+          description="Mapbox uzerinde Karagozler, Cumhuriyet, Tuzla ve Babatasi akslarindaki gercek Fethiye referans koordinatlari ile otopark doluluk gorunumu sunuluyor."
+        />
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-12">

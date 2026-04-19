@@ -21,7 +21,7 @@ MuPark, belediye ve sehir ici otopark operatorleri icin AI destekli doluluk taki
 
 - Pilot zone: 3
 - Toplam kapasite: 36 park alani
-- EV kose: 6 (%16.7)
+- Faz 1 kapsami: tum alanlar standart akilli park noktasi
 - Saatlik fiyat araligi: 4.2-5.0 TL
 - Canli veri yenileme: 15 sn
 

@@ -4,48 +4,7 @@ import { Reservation } from "../lib/models/reservation";
 import { Transaction } from "../lib/models/transaction";
 import { Zone } from "../lib/models/zone";
 import { LiveSpot, type SpotStatus } from "../lib/models/liveSpot";
-
-const zones = [
-  {
-    name: "Atatürk Caddesi",
-    slug: "atatürk-caddesi",
-    block: "A",
-    address: "Atatürk Caddesi 12",
-    capacity: 12,
-    hourlyRate: 4.2,
-    status: "open",
-    coordinates: { lat: 38.953, lng: 35.242 },
-    mapPosition: { x: 30, y: 45 },
-    color: "#13629F",
-    noShowPenalty: 35,
-  },
-  {
-    name: "Karagözler",
-    slug: "karagozler",
-    block: "B",
-    address: "Karagözler Sokak 8",
-    capacity: 14,
-    hourlyRate: 4.8,
-    status: "open",
-    coordinates: { lat: 38.949, lng: 35.231 },
-    mapPosition: { x: 65, y: 65 },
-    color: "#159B58",
-    noShowPenalty: 40,
-  },
-  {
-    name: "Çarþý Caddesi",
-    slug: "carsi-caddesi",
-    block: "C",
-    address: "Çarþý Caddesi 27",
-    capacity: 10,
-    hourlyRate: 5,
-    status: "open",
-    coordinates: { lat: 38.964, lng: 35.243 },
-    mapPosition: { x: 55, y: 35 },
-    color: "#1EA3D2",
-    noShowPenalty: 45,
-  },
-];
+import { fethiyeZoneSeeds } from "../lib/data/fethiyeZones";
 
 function makeCode() {
   return `MP-${randomUUID().split("-")[0].toUpperCase()}`;
@@ -60,7 +19,7 @@ async function run() {
     LiveSpot.deleteMany({}),
   ]);
 
-  const createdZones = await Zone.create(zones);
+  const createdZones = await Zone.create(fethiyeZoneSeeds);
 
   const reservations = await Reservation.create([
     {
@@ -119,9 +78,8 @@ async function run() {
     Array.from({ length: zone.capacity }, (_, idx) => ({
       spotId: `${zone.slug.toUpperCase()}-${idx + 1}`,
       zone: zone._id,
-      status:
-        liveSpotPattern[(idx + zone.capacity) % liveSpotPattern.length],
-      label: idx < 2 ? `EV-${idx + 1}` : `P-${idx + 1}`,
+      status: liveSpotPattern[(idx + zone.capacity) % liveSpotPattern.length],
+      label: `P-${idx + 1}`,
       lastUpdated: new Date(Date.now() - idx * 60 * 1000),
     }))
   );
@@ -129,7 +87,7 @@ async function run() {
   await LiveSpot.create(liveSpotDocs);
 
   console.log(
-    "Seeded ÂµPark data with",
+    "Seeded MuPark data with",
     createdZones.length,
     "zones and",
     liveSpotDocs.length,

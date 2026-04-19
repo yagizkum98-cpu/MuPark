@@ -14,7 +14,7 @@
 | 2 | 8-20 sn | MuPark canli doluluk haritasi | "Anlik doluluk takibi" | Cozum 1 |
 | 3 | 20-35 sn | Mobil rezervasyon + QR gecis animasyonu | "Rezervasyon ve hizli giris" | Cozum 2 |
 | 4 | 35-50 sn | Belediye dashboard metrikleri | "Canli operasyon paneli" | Operasyon |
-| 5 | 50-65 sn | EV kose / sarj gorseli | "EV dostu kampanya modeli" | EV |
+| 5 | 50-65 sn | Canli doluluk paneli ve rezervasyon akisi | "Ilk faz akilli park odagi" | Product |
 | 6 | 65-75 sn | Marka logo + CTA | "MuPark ile daha akilli park" | Kapanis |
 
 ## Asset Checklist

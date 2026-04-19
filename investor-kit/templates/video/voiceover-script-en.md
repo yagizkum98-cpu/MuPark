@@ -22,7 +22,7 @@ They navigate directly to the spot and enter with a QR code. Electronic bollard 
 For municipalities and operators, all activity is visible in one live dashboard. Occupancy, no-shows, and revenue impact are tracked in one place.
 
 [50-65 sec]  
-With EV corner campaigns, MuPark also supports sustainable mobility and creates a stronger digital parking experience.
+In the first phase, MuPark focuses on smart parking reservation, live occupancy visibility, and unified field operations.
 
 [65-75 sec]  
 MuPark digitizes parking operations, reduces congestion, and improves urban quality of life.

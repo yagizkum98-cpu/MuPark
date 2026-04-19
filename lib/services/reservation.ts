@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { Reservation, ReservationStatus } from "@/lib/models/reservation";
 import { Zone } from "@/lib/models/zone";
 
-const occupancyStatuses: ReservationStatus[] = ["pending", "active"];
+const occupancyStatuses: ReservationStatus[] = ["pending", "approved", "active"];
 
 export interface ReservationInput {
   zoneId: string;
@@ -51,15 +51,37 @@ export async function findReservationById(id: string) {
   return Reservation.findById(id);
 }
 
-export async function updateReservationStatus(id: string, action: "start" | "end") {
+export async function updateReservationStatus(
+  id: string,
+  action: "approve" | "start" | "end" | "cancel"
+) {
   const reservation = await Reservation.findById(id);
   if (!reservation) throw new Error("Reservation not found");
 
-  if (action === "start") {
+  if (action === "approve") {
+    if (reservation.status === "approved") return reservation;
+    if (reservation.status === "completed" || reservation.status === "cancelled") {
+      throw new Error("Reservation cannot be approved");
+    }
+    reservation.status = "approved";
+  } else if (action === "cancel") {
+    if (reservation.status === "cancelled") return reservation;
+    if (reservation.status === "completed") {
+      throw new Error("Completed reservation cannot be cancelled");
+    }
+    reservation.status = "cancelled";
+  } else if (action === "start") {
     if (reservation.status === "active") return reservation;
+    if (reservation.status === "cancelled" || reservation.status === "completed") {
+      throw new Error("Reservation cannot be started");
+    }
     reservation.status = "active";
     reservation.startTime = reservation.startTime ?? new Date();
   } else {
+    if (reservation.status === "completed") return reservation;
+    if (reservation.status !== "active") {
+      throw new Error("Only active reservations can be completed");
+    }
     reservation.status = "completed";
     reservation.endTime = new Date();
     if (!reservation.startTime) {

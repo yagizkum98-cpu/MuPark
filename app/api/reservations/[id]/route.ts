@@ -4,7 +4,7 @@ import { connectDb } from "@/lib/db/mongoose";
 import { updateReservationStatus } from "@/lib/services/reservation";
 
 const actionSchema = z.object({
-  action: z.enum(["start", "end"]),
+  action: z.enum(["approve", "start", "end", "cancel"]),
 });
 
 export async function PATCH(

@@ -5,12 +5,13 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/LanguageProvider";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [themeMode, setThemeMode] = useState<"day" | "night">("day");
-  const { lang, setLang } = useLanguage();
+  const { lang } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -74,9 +75,7 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
-          <span className={cn("text-2xl font-extrabold tracking-tight", themeMode === "night" ? "text-cyan-200" : "text-cyan-900")}>
-            MUPark
-          </span>
+          <BrandLogo compact className="transition-transform duration-300 group-hover:scale-[1.02]" />
           <span className="sr-only">{copy.srHome}</span>
         </Link>
 
@@ -120,36 +119,6 @@ export default function Navbar() {
                 )}
               >
                 {copy.night}
-            </button>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setLang("tr")}
-                className={cn(
-                  "px-3 py-1 rounded-full border text-xs font-semibold transition",
-                  lang === "tr"
-                    ? "border-cyan-500 text-cyan-800 bg-cyan-500/15"
-                    : themeMode === "night"
-                      ? "border-white/20 text-slate-200 hover:bg-white/10"
-                      : "border-cyan-900/20 text-slate-700 hover:bg-cyan-100"
-                )}
-              >
-              TR
-            </button>
-            <button
-              type="button"
-              onClick={() => setLang("en")}
-                className={cn(
-                  "px-3 py-1 rounded-full border text-xs font-semibold transition",
-                  lang === "en"
-                    ? "border-cyan-500 text-cyan-800 bg-cyan-500/15"
-                    : themeMode === "night"
-                      ? "border-white/20 text-slate-200 hover:bg-white/10"
-                      : "border-cyan-900/20 text-slate-700 hover:bg-cyan-100"
-                )}
-              >
-              EN
             </button>
           </div>
           <button className="px-5 py-2.5 rounded-full bg-cyan-600 hover:bg-cyan-700 border border-cyan-700/40 text-white text-sm font-semibold transition-all hover:scale-105 active:scale-95 backdrop-blur-md">
@@ -212,36 +181,6 @@ export default function Navbar() {
                 )}
               >
                 {copy.night}
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setLang("tr")}
-                className={cn(
-                  "px-3 py-2 rounded-xl border text-xs font-semibold transition",
-                  lang === "tr"
-                    ? "border-cyan-500 text-cyan-800 bg-cyan-500/15"
-                    : themeMode === "night"
-                      ? "border-white/20 text-slate-200 hover:bg-white/10"
-                      : "border-cyan-900/20 text-slate-700 hover:bg-cyan-100"
-                )}
-              >
-                TR
-              </button>
-              <button
-                type="button"
-                onClick={() => setLang("en")}
-                className={cn(
-                  "px-3 py-2 rounded-xl border text-xs font-semibold transition",
-                  lang === "en"
-                    ? "border-cyan-500 text-cyan-800 bg-cyan-500/15"
-                    : themeMode === "night"
-                      ? "border-white/20 text-slate-200 hover:bg-white/10"
-                      : "border-cyan-900/20 text-slate-700 hover:bg-cyan-100"
-                )}
-              >
-                EN
               </button>
             </div>
             <button className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-bold">

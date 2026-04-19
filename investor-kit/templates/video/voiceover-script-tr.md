@@ -22,7 +22,7 @@ Navigasyonla dogrudan park noktasina ulasir, QR kod ile giris yapar. Elektronik 
 Belediye ve operator tarafinda tum hareketler canli panelde toplanir. Doluluk, no-show ve gelir etkisi tek ekranda takip edilir.
 
 [50-65 sn]  
-EV kose modeliyle elektrikli arac kullanicilarina kampanyali deneyim sunulur; sehirde surdurulebilir mobilite desteklenir.
+Ilk fazda odak, akilli park rezervasyonu, canli doluluk takibi ve saha operasyonunu tek platformda yonetmektir.
 
 [65-75 sn]  
 MuPark, park operasyonunu dijitallestirir; trafik yogunlugunu azaltir ve kentsel yasam kalitesini artirir.

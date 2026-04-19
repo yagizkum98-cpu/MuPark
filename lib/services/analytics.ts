@@ -10,7 +10,7 @@ export async function getDashboardMetrics() {
   const zones = await Zone.find();
   const totalSpots = zones.reduce((sum, zone) => sum + zone.capacity, 0);
   const activeReservations = await Reservation.countDocuments({
-    status: { $in: ["pending", "active"] },
+    status: { $in: ["pending", "approved", "active"] },
   });
   const occupancyPercent = totalSpots
     ? Math.round((activeReservations / totalSpots) * 100)
@@ -64,9 +64,6 @@ export async function getUsageAnalytics() {
 }
 
 export async function getRevenueAnalytics() {
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-
   const transactions = await Transaction.find({ status: "success" }).lean();
   const dailyRevenueMap: Record<string, number> = {};
   let monthlyRevenue = 0;
@@ -74,8 +71,15 @@ export async function getRevenueAnalytics() {
   let freeCount = 0;
 
   transactions.forEach((txn) => {
-    const key = txn.processedAt.toISOString().split("T")[0];
-    dailyRevenueMap[key] = (dailyRevenueMap[key] ?? 0) + txn.amount;
+    const processedAt = txn.processedAt ?? txn.createdAt;
+    const key =
+      processedAt instanceof Date && !Number.isNaN(processedAt.getTime())
+        ? processedAt.toISOString().split("T")[0]
+        : null;
+
+    if (key) {
+      dailyRevenueMap[key] = (dailyRevenueMap[key] ?? 0) + txn.amount;
+    }
     monthlyRevenue += txn.amount;
     paidCount += txn.amount > 0 ? 1 : 0;
     freeCount += txn.amount === 0 ? 1 : 0;
@@ -108,25 +112,148 @@ export async function getReportSummary(days = 30) {
 
   const reservations = await Reservation.find({
     reservedAt: { $gte: since },
-    status: { $in: ["completed", "active", "pending"] },
   })
     .populate("zone")
     .lean();
 
-  const aggregated = reservations.map((reservation) => ({
-    zoneName: (reservation.zone as { name?: string })?.name ?? "Unknown",
-    driver: reservation.driverName,
-    vehicle: reservation.vehiclePlate,
-    status: reservation.status,
-    totalAmount: reservation.totalAmount ?? 0,
-  }));
+  const transactions = await Transaction.find({
+    createdAt: { $gte: since },
+  }).lean();
 
-  const totalRevenue = aggregated.reduce((sum, item) => sum + item.totalAmount, 0);
+  const items = reservations
+    .map((reservation) => ({
+      zoneName: (reservation.zone as { name?: string })?.name ?? "Unknown",
+      driver: reservation.driverName,
+      driverEmail: reservation.driverEmail,
+      vehicle: reservation.vehiclePlate,
+      vehicleType: reservation.vehicleType,
+      status: reservation.status,
+      paymentStatus: reservation.paymentStatus,
+      totalAmount: reservation.totalAmount ?? 0,
+      reservedAt: reservation.reservedAt,
+      startTime: reservation.startTime ?? null,
+      endTime: reservation.endTime ?? null,
+    }))
+    .sort((a, b) => new Date(b.reservedAt).getTime() - new Date(a.reservedAt).getTime());
+
+  const totalRevenue = items.reduce((sum, item) => sum + item.totalAmount, 0);
+  const completedCount = items.filter((item) => item.status === "completed").length;
+  const activeCount = items.filter((item) => ["active", "approved", "pending"].includes(item.status)).length;
+  const cancelledCount = items.filter((item) => item.status === "cancelled").length;
+  const uniqueDrivers = new Set(items.map((item) => item.driverEmail)).size;
+  const averageTicket = items.length ? formatCurrency(totalRevenue / items.length) : 0;
+
+  const statusBreakdown = Object.entries(
+    items.reduce<Record<string, number>>((acc, item) => {
+      acc[item.status] = (acc[item.status] ?? 0) + 1;
+      return acc;
+    }, {})
+  )
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const paymentBreakdown = Object.entries(
+    items.reduce<Record<string, number>>((acc, item) => {
+      acc[item.paymentStatus] = (acc[item.paymentStatus] ?? 0) + 1;
+      return acc;
+    }, {})
+  )
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const vehicleBreakdown = Object.entries(
+    items.reduce<Record<string, number>>((acc, item) => {
+      acc[item.vehicleType] = (acc[item.vehicleType] ?? 0) + 1;
+      return acc;
+    }, {})
+  )
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const zonePerformance = Object.values(
+    items.reduce<
+      Record<
+        string,
+        {
+          zoneName: string;
+          reservations: number;
+          revenue: number;
+          completed: number;
+          active: number;
+        }
+      >
+    >((acc, item) => {
+      const key = item.zoneName;
+      if (!acc[key]) {
+        acc[key] = {
+          zoneName: item.zoneName,
+          reservations: 0,
+          revenue: 0,
+          completed: 0,
+          active: 0,
+        };
+      }
+
+      acc[key].reservations += 1;
+      acc[key].revenue += item.totalAmount;
+      if (item.status === "completed") acc[key].completed += 1;
+      if (["active", "approved", "pending"].includes(item.status)) acc[key].active += 1;
+      return acc;
+    }, {})
+  )
+    .map((zone) => ({
+      ...zone,
+      revenue: formatCurrency(zone.revenue),
+    }))
+    .sort((a, b) => b.revenue - a.revenue);
+
+  const dailyTrend = Object.entries(
+    items.reduce<Record<string, { reservations: number; revenue: number }>>((acc, item) => {
+      const key = new Date(item.reservedAt).toISOString().split("T")[0];
+      if (!acc[key]) {
+        acc[key] = { reservations: 0, revenue: 0 };
+      }
+      acc[key].reservations += 1;
+      acc[key].revenue += item.totalAmount;
+      return acc;
+    }, {})
+  )
+    .sort(([a], [b]) => (a > b ? 1 : -1))
+    .map(([date, data]) => ({
+      date,
+      reservations: data.reservations,
+      revenue: formatCurrency(data.revenue),
+    }));
+
+  const hourlyLoad = Array.from({ length: 24 }, (_, hour) => {
+    const value = items.filter((item) => new Date(item.reservedAt).getHours() === hour).length;
+    return {
+      hour: `${hour.toString().padStart(2, "0")}:00`,
+      value,
+    };
+  });
+
+  const successfulTransactions = transactions.filter((txn) => txn.status === "success").length;
+  const paymentSuccessRate = transactions.length
+    ? Math.round((successfulTransactions / transactions.length) * 100)
+    : 0;
 
   return {
     days,
-    totalReservations: aggregated.length,
+    totalReservations: items.length,
     totalRevenue: formatCurrency(totalRevenue),
-    items: aggregated.slice(0, 10),
+    averageTicket,
+    completedCount,
+    activeCount,
+    cancelledCount,
+    uniqueDrivers,
+    paymentSuccessRate,
+    statusBreakdown,
+    paymentBreakdown,
+    vehicleBreakdown,
+    zonePerformance,
+    dailyTrend,
+    hourlyLoad,
+    items: items.slice(0, 18),
   };
 }

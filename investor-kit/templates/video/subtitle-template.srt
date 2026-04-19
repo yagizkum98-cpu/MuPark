@@ -16,7 +16,7 @@ Tum operasyon belediye panelinde canli izlenir.
 
 5
 00:00:50,000 --> 00:01:05,000
-EV kose modeliyle surdurulebilir mobilite desteklenir.
+Ilk faz odagi akilli park rezervasyonu ve canli doluluk yonetimidir.
 
 6
 00:01:05,000 --> 00:01:15,000

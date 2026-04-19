@@ -9,7 +9,7 @@ Kapsam: Kod tabanindaki mevcut implementasyon ve seed verisi
   Kaynak: `scripts/seed.ts`
 - Toplam kapasite: `36` park alani (`12 + 14 + 10`)  
   Kaynak: `scripts/seed.ts`
-- EV kose sayisi: `6` (zone basina 2 adet, toplam kapasitenin `%16.7`si)  
+- Faz 1 kapsam notu: Tum alanlar standart akilli park noktasi olarak degerlendirilir.  
   Kaynak: `scripts/seed.ts`, `lib/services/liveSpot.ts`
 - Saatlik ucret bandi: `4.2 - 5.0 TL` (ortalama `4.67 TL`)  
   Kaynak: `scripts/seed.ts`

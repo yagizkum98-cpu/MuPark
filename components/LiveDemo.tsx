@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Car, Clock, Zap, Gift } from "lucide-react";
+import { MapPin, Car, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -12,7 +12,6 @@ interface LiveSpotInfo {
   spotId: string;
   status: SpotStatus;
   label?: string;
-  isEv: boolean;
   lastUpdated?: string;
 }
 
@@ -29,8 +28,134 @@ interface ZoneSnapshot {
 }
 
 const NO_SHOW_THRESHOLD_MINUTES = 30;
-const EV_FREE_MINUTES = 100;
-const EV_STATE_TARIFF = 7.9;
+const FALLBACK_STORAGE_KEY = "mupark-live-demo-fallback-zones";
+const DEMO_ZONES: ZoneSnapshot[] = [
+  {
+    slug: "ataturk-caddesi",
+    name: "Ataturk Caddesi",
+    block: "A",
+    capacity: 12,
+    hourlyRate: 4.2,
+    color: "#13629F",
+    status: "open",
+    noShowPenalty: 35,
+    spots: Array.from({ length: 12 }, (_, idx) => ({
+      spotId: `ATATURK-CADDESI-${idx + 1}`,
+      status: (["available", "occupied", "reserved"] as SpotStatus[])[idx % 3],
+      label: `P-${idx + 1}`,
+      lastUpdated: new Date(Date.now() - idx * 60_000).toISOString(),
+    })),
+  },
+  {
+    slug: "karagozler",
+    name: "Karagozler",
+    block: "B",
+    capacity: 14,
+    hourlyRate: 4.8,
+    color: "#159B58",
+    status: "open",
+    noShowPenalty: 40,
+    spots: Array.from({ length: 14 }, (_, idx) => ({
+      spotId: `KARAGOZLER-${idx + 1}`,
+      status: (["occupied", "available", "reserved"] as SpotStatus[])[idx % 3],
+      label: `P-${idx + 1}`,
+      lastUpdated: new Date(Date.now() - (idx + 2) * 60_000).toISOString(),
+    })),
+  },
+  {
+    slug: "carsi-caddesi",
+    name: "Carsi Caddesi",
+    block: "C",
+    capacity: 10,
+    hourlyRate: 5,
+    color: "#1EA3D2",
+    status: "open",
+    noShowPenalty: 45,
+    spots: Array.from({ length: 10 }, (_, idx) => ({
+      spotId: `CARSI-CADDESI-${idx + 1}`,
+      status: (["reserved", "available", "occupied"] as SpotStatus[])[idx % 3],
+      label: `P-${idx + 1}`,
+      lastUpdated: new Date(Date.now() - (idx + 4) * 60_000).toISOString(),
+    })),
+  },
+];
+
+function cloneDemoZones() {
+  return DEMO_ZONES.map((zone) => ({
+    ...zone,
+    spots: zone.spots.map((spot) => ({ ...spot })),
+  }));
+}
+
+function readStoredFallbackZones() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(FALLBACK_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as ZoneSnapshot[];
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredFallbackZones(zones: ZoneSnapshot[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(FALLBACK_STORAGE_KEY, JSON.stringify(zones));
+  } catch {
+    // Ignore storage write failures and continue with in-memory fallback state.
+  }
+}
+
+function clearStoredFallbackZones() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(FALLBACK_STORAGE_KEY);
+  } catch {
+    // Ignore storage cleanup failures.
+  }
+}
+
+function updateSpotInZones(zones: ZoneSnapshot[], spotId: string, status: SpotStatus) {
+  const timestamp = new Date().toISOString();
+  let updatedSpot: LiveSpotInfo | null = null;
+
+  const nextZones = zones.map((zone) => ({
+    ...zone,
+    spots: zone.spots.map((spot) => {
+      if (spot.spotId !== spotId) {
+        return spot;
+      }
+
+      updatedSpot = {
+        ...spot,
+        status,
+        lastUpdated: timestamp,
+      };
+
+      return updatedSpot;
+    }),
+  }));
+
+  return { zones: nextZones, updatedSpot };
+}
 
 export default function LiveDemo() {
   const { lang } = useLanguage();
@@ -41,6 +166,7 @@ export default function LiveDemo() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [reserving, setReserving] = useState(false);
+  const [isFallbackMode, setIsFallbackMode] = useState(false);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const copy = useMemo(
@@ -48,10 +174,9 @@ export default function LiveDemo() {
       lang === "tr"
         ? {
             fetchFail: "Veriler alinamadi.",
-            liveFail: "Canli doluluk guncellenemedi.",
             statusFail: "Durum guncellenemedi.",
-            reserveEv: `EV kosesi rezerve edildi. Sarjda ilk ${EV_FREE_MINUTES} dakika MuPark hediyesi aktif.`,
-            reserveCar: "Rezervasyonunuz olusturuldu. Park yerine ilerleyebilirsiniz.",
+            resetDemo: "Simulasyonu sifirla",
+            reserveSpot: "Rezervasyonunuz olusturuldu. Park yerine ilerleyebilirsiniz.",
             release: "Park tamamlandi, alan yeniden kullanilabilir.",
             statusAvailable: "Musait",
             statusReserved: "Rezerve",
@@ -63,38 +188,33 @@ export default function LiveDemo() {
             busyUpdate: "Durum guncelleniyor...",
             badge: "Canli Sistem Demosu",
             titleA: "Gercek Zamanli",
-            titleB: "Park Yonetimi",
-            subtitle: "Pilot bolgelerdeki anlik durumu interaktif harita uzerinden izleyin.",
+            titleB: "Akilli Park Yonetimi",
+            subtitle: "Pilot bolgelerdeki anlik doluluk, rezervasyon ve saha durumunu tek ekrandan izleyin.",
             selectLocation: "Konum Secin",
             fieldStatus: "Durum",
             fieldUpdated: "Son guncelleme",
             fieldPrice: "Ucret",
-            fieldCharge: "Sarj tarifesi",
-            freeMinute: `${EV_FREE_MINUTES} dk ucretsiz`,
-            stateTariff: "(devlet)",
-            gift: "MuPark Hediyesi",
-            leftFree: "dk ucretsiz kaldi",
-            points: "Oyunlastirma puani",
             loading: "Canli veriler yukleniyor...",
             selectPrompt: "Rezervasyon yapmak icin haritadan uygun (yesil) bir park yeri secin.",
             mapTitle: "Canli Doluluk Haritasi",
             live: "Canli",
+            fallback: "Demo",
             legendAvailable: "Musait",
             legendOccupied: "Dolu",
             legendReserved: "Rezerve",
-            legendEv: "EV Kosesi",
-            campaignTitle: "Elektrikli arac kampanyasi",
-            campaignDesc: `2 park alani EV kosesi olarak ayrildi. Sarj devlet tarifesiyle isler, ilk ${EV_FREE_MINUTES} dakika MuPark'tan hediye.`,
+            focusTitle: "Faz 1 odagi",
+            focusDesc:
+              "Bu ilk surum yalnizca akilli park rezervasyonu, canli doluluk takibi ve saha operasyonuna odaklanir.",
             penalty: "Ceza sayaci",
             totalPenalty: "Toplam ceza",
             penaltyRate: "rezerve edilen fakat gelmeyen arac",
+            priceUnit: "TL / saat",
           }
         : {
             fetchFail: "Failed to fetch data.",
-            liveFail: "Live occupancy refresh failed.",
             statusFail: "Failed to update status.",
-            reserveEv: `EV corner reserved. MuPark gift covers first ${EV_FREE_MINUTES} minutes of charging.`,
-            reserveCar: "Reservation created. You can proceed to the parking area.",
+            resetDemo: "Reset simulation",
+            reserveSpot: "Reservation created. You can proceed to the parking area.",
             release: "Parking completed, spot is now available again.",
             statusAvailable: "Available",
             statusReserved: "Reserved",
@@ -106,31 +226,27 @@ export default function LiveDemo() {
             busyUpdate: "Updating status...",
             badge: "Live System Demo",
             titleA: "Real-Time",
-            titleB: "Parking Management",
-            subtitle: "Track live conditions in pilot zones with an interactive map.",
+            titleB: "Smart Parking Management",
+            subtitle: "Track live occupancy, reservation flow, and field status in pilot zones from one screen.",
             selectLocation: "Select Location",
             fieldStatus: "Status",
             fieldUpdated: "Last update",
             fieldPrice: "Price",
-            fieldCharge: "Charging tariff",
-            freeMinute: `First ${EV_FREE_MINUTES} min free`,
-            stateTariff: "(state)",
-            gift: "MuPark Gift",
-            leftFree: "min free left",
-            points: "Gamification score",
             loading: "Loading live data...",
             selectPrompt: "Select an available (green) spot on the map to reserve.",
             mapTitle: "Live Occupancy Map",
             live: "Live",
+            fallback: "Demo",
             legendAvailable: "Available",
             legendOccupied: "Occupied",
             legendReserved: "Reserved",
-            legendEv: "EV Corner",
-            campaignTitle: "EV campaign",
-            campaignDesc: `2 parking spots are dedicated as EV corners. Charging follows state tariff, first ${EV_FREE_MINUTES} minutes are sponsored by MuPark.`,
+            focusTitle: "Phase 1 focus",
+            focusDesc:
+              "This first release focuses only on smart parking reservation, live occupancy tracking, and field operations.",
             penalty: "Penalty counter",
             totalPenalty: "Total penalty",
             penaltyRate: "reserved but absent vehicle",
+            priceUnit: "TRY / hour",
           },
     [lang]
   );
@@ -153,6 +269,11 @@ export default function LiveDemo() {
       }
 
       const fetchedZones: ZoneSnapshot[] = payload.zones ?? [];
+      if (fetchedZones.length === 0) {
+        throw new Error(copy.fetchFail);
+      }
+      setIsFallbackMode(false);
+      clearStoredFallbackZones();
       setZones(fetchedZones);
 
       setActiveZoneSlug((current) => {
@@ -172,13 +293,32 @@ export default function LiveDemo() {
         }
         return null;
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : copy.liveFail;
-      setFetchError(message);
+    } catch {
+      const fallbackZones = readStoredFallbackZones() ?? cloneDemoZones();
+      setIsFallbackMode(true);
+      setZones(fallbackZones);
+      writeStoredFallbackZones(fallbackZones);
+      setActiveZoneSlug((current) => {
+        if (current && fallbackZones.some((zone) => zone.slug === current)) {
+          return current;
+        }
+        return fallbackZones[0]?.slug ?? null;
+      });
+      setSelectedSpot((current) => {
+        if (!current) return null;
+        for (const zone of fallbackZones) {
+          const updatedSpot = zone.spots.find((spot) => spot.spotId === current.spotId);
+          if (updatedSpot) {
+            return { ...updatedSpot };
+          }
+        }
+        return null;
+      });
+      setFetchError(null);
     } finally {
       setLoading(false);
     }
-  }, [copy.fetchFail, copy.liveFail]);
+  }, [copy.fetchFail]);
 
   useEffect(() => {
     refreshLiveSpots();
@@ -195,6 +335,32 @@ export default function LiveDemo() {
     setSelectedSpot(spot);
   };
 
+  const handleResetFallback = useCallback(() => {
+    const nextZones = cloneDemoZones();
+    clearStoredFallbackZones();
+    writeStoredFallbackZones(nextZones);
+    setIsFallbackMode(true);
+    setZones(nextZones);
+    setFeedback(null);
+    setFetchError(null);
+    setActiveZoneSlug((current) => {
+      if (current && nextZones.some((zone) => zone.slug === current)) {
+        return current;
+      }
+      return nextZones[0]?.slug ?? null;
+    });
+    setSelectedSpot((current) => {
+      if (!current) return null;
+      for (const zone of nextZones) {
+        const updatedSpot = zone.spots.find((spot) => spot.spotId === current.spotId);
+        if (updatedSpot) {
+          return { ...updatedSpot };
+        }
+      }
+      return null;
+    });
+  }, []);
+
   const handleSpotAction = useCallback(
     async (action: "reserve" | "release") => {
       if (!selectedSpot) return;
@@ -202,6 +368,22 @@ export default function LiveDemo() {
       setFetchError(null);
 
       try {
+        const nextStatus: SpotStatus = action === "reserve" ? "reserved" : "available";
+
+        if (isFallbackMode) {
+          const { zones: nextZones, updatedSpot } = updateSpotInZones(zones, selectedSpot.spotId, nextStatus);
+          setZones(nextZones);
+          setSelectedSpot(updatedSpot);
+          writeStoredFallbackZones(nextZones);
+          setFeedback(action === "reserve" ? copy.reserveSpot : copy.release);
+
+          if (feedbackTimer.current) {
+            clearTimeout(feedbackTimer.current);
+          }
+          feedbackTimer.current = setTimeout(() => setFeedback(null), 4500);
+          return;
+        }
+
         const response = await fetch("/api/live-spots", {
           method: "POST",
           cache: "no-store",
@@ -219,7 +401,7 @@ export default function LiveDemo() {
 
         const updatedStatus = payload.status as SpotStatus;
         setSelectedSpot((prev) => (prev ? { ...prev, status: updatedStatus } : prev));
-        setFeedback(action === "reserve" ? (selectedSpot.isEv ? copy.reserveEv : copy.reserveCar) : copy.release);
+        setFeedback(action === "reserve" ? copy.reserveSpot : copy.release);
 
         if (feedbackTimer.current) {
           clearTimeout(feedbackTimer.current);
@@ -233,7 +415,7 @@ export default function LiveDemo() {
         setReserving(false);
       }
     },
-    [copy.release, copy.reserveCar, copy.reserveEv, copy.statusFail, refreshLiveSpots, selectedSpot]
+    [copy.release, copy.reserveSpot, copy.statusFail, isFallbackMode, refreshLiveSpots, selectedSpot, zones]
   );
 
   const statusLabels: Record<SpotStatus, string> = {
@@ -252,14 +434,14 @@ export default function LiveDemo() {
     currentAction === "reserve"
       ? copy.actionReserve
       : currentAction === "release"
-      ? selectedSpot?.status === "occupied"
-        ? copy.actionReleaseOccupied
-        : copy.actionRelease
-      : "";
+        ? selectedSpot?.status === "occupied"
+          ? copy.actionReleaseOccupied
+          : copy.actionRelease
+        : "";
 
   const busyLabel = currentAction === "reserve" ? copy.busyReserve : copy.busyUpdate;
 
-  const spots = activeZone?.spots ?? [];
+  const spots = useMemo(() => activeZone?.spots ?? [], [activeZone]);
   const currentPenaltyRate = activeZone?.noShowPenalty ?? 0;
   const currencyFormatter = useMemo(
     () =>
@@ -290,50 +472,24 @@ export default function LiveDemo() {
     };
   }, [spots, currentPenaltyRate, currencyFormatter]);
 
-  const evUsageSummary = useMemo(() => {
-    if (!selectedSpot?.isEv) {
-      return null;
-    }
-
-    if (!selectedSpot.lastUpdated || selectedSpot.status === "available") {
-      return {
-        remainingFreeMinutes: EV_FREE_MINUTES,
-        progress: 0,
-        ecoPoints: 0,
-      };
-    }
-
-    const elapsedMs = Date.now() - Date.parse(selectedSpot.lastUpdated);
-    const usedMinutes = Number.isFinite(elapsedMs) && elapsedMs > 0 ? Math.floor(elapsedMs / 60000) : 0;
-    const remainingFreeMinutes = Math.max(0, EV_FREE_MINUTES - usedMinutes);
-    const progress = Math.min(100, Math.round((usedMinutes / EV_FREE_MINUTES) * 100));
-    const ecoPoints = Math.max(0, Math.min(250, usedMinutes * 2));
-
-    return {
-      remainingFreeMinutes,
-      progress,
-      ecoPoints,
-    };
-  }, [selectedSpot]);
-
   return (
-    <section id="demo" className="py-24 relative bg-cyan-50/40">
+    <section id="demo" className="neon-grid relative bg-cyan-50/40 py-24">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-4">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[color:var(--accent-strong)]">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             {copy.badge}
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            {copy.titleA} <span className="text-cyan-400">{copy.titleB}</span>
+          <h2 className="mb-4 text-3xl font-bold text-[color:var(--hero-title)] md:text-4xl">
+            {copy.titleA} <span className="text-[color:var(--accent-text)]">{copy.titleB}</span>
           </h2>
-          <p className="text-muted text-lg">{copy.subtitle}</p>
+          <p className="text-lg text-[color:var(--muted)]">{copy.subtitle}</p>
         </div>
 
-        <div className="max-w-5xl mx-auto rounded-3xl bg-white/90 border border-cyan-100 backdrop-blur-sm overflow-hidden flex flex-col md:flex-row min-h-[600px]">
-          <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-cyan-100 bg-white p-6 flex flex-col">
-            <h3 className="text-slate-900 font-semibold mb-6 flex items-center gap-2">
-              <MapPin className="text-cyan-400" /> {copy.selectLocation}
+        <div className="neon-shell mx-auto flex min-h-[600px] max-w-5xl flex-col overflow-hidden rounded-3xl md:flex-row">
+          <div className="flex w-full flex-col border-b border-[color:var(--panel-border)] bg-[var(--surface-strong)] p-6 md:w-80 md:border-b-0 md:border-r">
+            <h3 className="mb-6 flex items-center gap-2 font-semibold text-[color:var(--hero-title)]">
+              <MapPin className="text-[color:var(--accent-text)]" /> {copy.selectLocation}
             </h3>
 
             <div className="space-y-2 mb-8">
@@ -344,8 +500,8 @@ export default function LiveDemo() {
                   className={cn(
                     "w-full text-left px-4 py-3 rounded-xl transition-all text-sm font-medium",
                     activeZoneSlug === zone.slug
-                      ? "bg-cyan-100 text-cyan-800 border border-cyan-300"
-                      : "text-slate-600 hover:bg-cyan-50 hover:text-slate-900"
+                      ? "border border-cyan-300/40 bg-cyan-400/10 text-[color:var(--accent-text)]"
+                      : "text-[color:var(--muted)] hover:bg-white/10 hover:text-[color:var(--hero-title)]"
                   )}
                 >
                   {zone.name}
@@ -362,17 +518,17 @@ export default function LiveDemo() {
 
               {selectedSpot ? (
                 <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20 animate-in fade-in slide-in-from-bottom-4">
-                  <h4 className="text-slate-900 font-bold mb-2 flex items-center gap-2">
-                    {selectedSpot.isEv ? <Zap className="w-4 h-4 text-amber-300" /> : <Car className="w-4 h-4" />} {selectedSpot.label ?? selectedSpot.spotId}
+                  <h4 className="mb-2 flex items-center gap-2 font-bold text-[color:var(--hero-title)]">
+                    <Car className="w-4 h-4" /> {selectedSpot.label ?? selectedSpot.spotId}
                   </h4>
-                  <div className="space-y-3 text-sm text-slate-600 my-4">
+                  <div className="my-4 space-y-3 text-sm text-[color:var(--muted)]">
                     <div className="flex justify-between">
                       <span>{copy.fieldStatus}</span>
-                      <span className="text-slate-900">{statusLabels[selectedSpot.status]}</span>
+                      <span className="text-[color:var(--hero-title)]">{statusLabels[selectedSpot.status]}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>{copy.fieldUpdated}</span>
-                      <span className="text-slate-900">
+                      <span className="text-[color:var(--hero-title)]">
                         {selectedSpot.lastUpdated
                           ? new Date(selectedSpot.lastUpdated).toLocaleTimeString(lang === "tr" ? "tr-TR" : "en-US", {
                               hour: "2-digit",
@@ -383,37 +539,11 @@ export default function LiveDemo() {
                     </div>
                     <div className="flex justify-between">
                       <span>{copy.fieldPrice}</span>
-                      <span className="text-slate-900">
-                        {selectedSpot.isEv ? copy.freeMinute : activeZone ? `${activeZone.hourlyRate.toFixed(2)} TL / hour` : "-"}
+                      <span className="text-[color:var(--hero-title)]">
+                        {activeZone ? `${activeZone.hourlyRate.toFixed(2)} ${copy.priceUnit}` : "-"}
                       </span>
                     </div>
-                    {selectedSpot.isEv && (
-                      <div className="flex justify-between">
-                        <span>{copy.fieldCharge}</span>
-                        <span className="text-slate-900">
-                          {EV_STATE_TARIFF.toFixed(2)} TL / kWh {copy.stateTariff}
-                        </span>
-                      </div>
-                    )}
                   </div>
-                  {selectedSpot.isEv && evUsageSummary && (
-                    <div className="mb-4 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3">
-                      <div className="flex items-center justify-between text-xs text-amber-100">
-                        <span className="inline-flex items-center gap-1">
-                          <Gift className="h-3.5 w-3.5" /> {copy.gift}
-                        </span>
-                        <span>
-                          {evUsageSummary.remainingFreeMinutes} {copy.leftFree}
-                        </span>
-                      </div>
-                      <div className="mt-2 h-1.5 rounded-full bg-black/30">
-                        <div className="h-full rounded-full bg-amber-300 transition-all" style={{ width: `${evUsageSummary.progress}%` }} />
-                      </div>
-                      <p className="mt-2 text-xs text-amber-50">
-                        {copy.points}: <span className="font-semibold">{evUsageSummary.ecoPoints} EcoPoint</span>
-                      </p>
-                    </div>
-                  )}
                   <button
                     onClick={() => currentAction && handleSpotAction(currentAction)}
                     disabled={reserving}
@@ -424,37 +554,52 @@ export default function LiveDemo() {
                   {feedback && <p className="text-xs text-cyan-700 mt-2">{feedback}</p>}
                 </div>
               ) : (
-                <div className="p-4 rounded-xl bg-cyan-50 border border-cyan-100 text-center">
-                  <p className="text-muted text-sm">{loading ? copy.loading : copy.selectPrompt}</p>
+                <div className="rounded-xl border border-[color:var(--panel-border)] bg-[var(--surface-soft)] p-4 text-center">
+                  <p className="text-sm text-[color:var(--muted)]">{loading ? copy.loading : copy.selectPrompt}</p>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="flex-1 p-6 md:p-10 bg-[url('https://images.unsplash.com/photo-1621929747188-0b4b23297109?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center md:bg-gray-900 relative">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <div className="relative flex-1 overflow-hidden bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.14),transparent_30%),linear-gradient(180deg,#02080d_0%,#03070a_100%)] p-6 md:p-10">
+            <div className="absolute inset-0 opacity-80 [background-image:linear-gradient(to_right,rgba(61,219,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(61,219,255,0.08)_1px,transparent_1px)] [background-size:44px_44px]" />
+            <div className="absolute inset-x-0 top-8 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,0.1),transparent_28%),radial-gradient(circle_at_80%_90%,rgba(16,185,129,0.12),transparent_30%)]" />
 
             <div className="relative z-10 h-full flex flex-col">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   {copy.mapTitle}
                   <span className="text-xs font-normal px-2 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/20">{copy.live}</span>
+                  {isFallbackMode && (
+                    <span className="text-xs font-normal px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                      {copy.fallback}
+                    </span>
+                  )}
                 </h3>
                 <div className="flex items-center gap-4 text-xs font-medium">
+                  {isFallbackMode && (
+                    <button
+                      type="button"
+                      onClick={handleResetFallback}
+                      className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 text-amber-200 transition hover:bg-amber-500/20"
+                    >
+                      {copy.resetDemo}
+                    </button>
+                  )}
                   <div className="flex items-center gap-1.5 text-gray-400"><span className="w-2 h-2 rounded-full bg-green-500" />{copy.legendAvailable}</div>
                   <div className="flex items-center gap-1.5 text-gray-400"><span className="w-2 h-2 rounded-full bg-red-500" />{copy.legendOccupied}</div>
                   <div className="flex items-center gap-1.5 text-gray-400"><span className="w-2 h-2 rounded-full bg-blue-500" />{copy.legendReserved}</div>
-                  <div className="flex items-center gap-1.5 text-gray-400"><span className="w-2 h-2 rounded-full bg-amber-400" />{copy.legendEv}</div>
                 </div>
               </div>
 
-              <div className="mb-4 rounded-2xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-50 shadow-lg shadow-amber-900/20">
-                <p className="text-[10px] tracking-[0.2em] uppercase text-amber-200">{copy.campaignTitle}</p>
-                <p className="mt-1 text-sm">{copy.campaignDesc}</p>
+              <div className="data-stream mb-4 rounded-2xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-50 shadow-lg shadow-cyan-900/20">
+                <p className="text-[10px] tracking-[0.2em] uppercase text-[color:var(--accent-strong)]">{copy.focusTitle}</p>
+                <p className="mt-1 text-sm">{copy.focusDesc}</p>
               </div>
 
               <div className="mb-6 rounded-2xl border border-cyan-500/30 bg-white/5 px-4 py-3 text-sm text-white shadow-lg shadow-cyan-500/20">
-                <p className="text-[10px] tracking-[0.2em] uppercase text-cyan-200">{copy.penalty}</p>
+                <p className="text-[10px] tracking-[0.2em] uppercase text-[color:var(--accent-strong)]">{copy.penalty}</p>
                 <p className="text-3xl font-bold">{noShowPenaltySummary.count}</p>
                 <p className="text-xs text-muted">
                   {copy.totalPenalty}: <span className="text-white">{noShowPenaltySummary.formattedTotal}</span>
@@ -473,15 +618,14 @@ export default function LiveDemo() {
                     onClick={() => handleSpotClick(spot)}
                     className={cn(
                       "relative rounded-xl border-2 flex flex-col items-center justify-center p-4 transition-all duration-300 cursor-pointer",
-                      spot.isEv && "border-amber-400/70 bg-amber-500/10 text-amber-200 shadow-[0_0_20px_rgba(251,191,36,0.15)]",
-                      !spot.isEv && spot.status === "available" && "bg-green-500/10 border-green-500/50 text-green-500 hover:bg-green-500/20 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.2)]",
-                      !spot.isEv && spot.status === "occupied" && "bg-red-500/5 border-red-500/20 text-white opacity-90",
-                      !spot.isEv && spot.status === "reserved" && "bg-blue-500/10 border-blue-500/50 text-blue-400",
+                      spot.status === "available" && "bg-green-500/10 border-green-500/50 text-green-500 hover:bg-green-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]",
+                      spot.status === "occupied" && "bg-red-500/5 border-red-500/20 text-white opacity-90",
+                      spot.status === "reserved" && "bg-blue-500/10 border-blue-500/50 text-blue-400",
                       selectedSpot?.spotId === spot.spotId && "ring-2 ring-white ring-offset-2 ring-offset-black bg-green-500/30"
                     )}
                   >
                     <span className="absolute top-2 left-3 text-xs font-bold opacity-70">{spot.label ?? spot.spotId}</span>
-                    {spot.isEv ? <Zap className="w-8 h-8" /> : spot.status === "occupied" ? <Car className="w-8 h-8 opacity-50" /> : spot.status === "reserved" ? <Clock className="w-8 h-8 opacity-80" /> : <div className="text-2xl font-bold">P</div>}
+                    {spot.status === "occupied" ? <Car className="w-8 h-8 opacity-50" /> : spot.status === "reserved" ? <Clock className="w-8 h-8 opacity-80" /> : <div className="text-2xl font-bold">P</div>}
                     <div className="pointer-events-none absolute bottom-3 left-3 right-3 flex items-center gap-1.5">
                       {[0, 1, 2].map((segment) => (
                         <motion.span
@@ -495,7 +639,6 @@ export default function LiveDemo() {
                         />
                       ))}
                     </div>
-                    {spot.isEv && <span className="absolute bottom-2 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-100">EV</span>}
                   </motion.button>
                 ))}
               </div>

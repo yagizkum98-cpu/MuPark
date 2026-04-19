@@ -3,7 +3,11 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/services/auth";
 
 const sections = [
+  { label: "Dashboard", href: "/admin/dashboard" },
   { label: "Tum Veriler", href: "/admin/panel" },
+  { label: "Raporlar", href: "/admin/reports" },
+  { label: "Gelir", href: "/admin/revenue" },
+  { label: "Harita", href: "/admin/map" },
 ];
 
 export default async function AdminRouteLayout({ children }: { children: React.ReactNode }) {
@@ -15,7 +19,7 @@ export default async function AdminRouteLayout({ children }: { children: React.R
       <header className="flex justify-between items-center px-6 py-4 border-b border-card-border bg-white shadow-sm sticky top-0 z-20">
         <div>
           <p className="text-xs uppercase tracking-[0.3rem] text-muted font-semibold">MU PARK Admin</p>
-          <p className="text-xl font-semibold text-text">Tum Veriler Paneli</p>
+          <p className="text-xl font-semibold text-text">Akilli Park Yonetim Merkezi</p>
         </div>
         <div className="flex items-center gap-3">
           {user ? (

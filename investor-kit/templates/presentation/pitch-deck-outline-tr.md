@@ -23,7 +23,7 @@
 
 - Bul -> Rezerve et -> Rota -> Park et
 - Canli panel ve yonetim ekrani
-- EV kose kampanyasi (ilk 100 dk hediye)
+- Faz 1 odagi: akilli park rezervasyonu ve canli doluluk takibi
 
 ## 5. Neden Simdi?
 

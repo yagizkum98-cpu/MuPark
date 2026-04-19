@@ -15,7 +15,6 @@ export interface LiveZoneSnapshot {
     spotId: string;
     status: SpotStatus;
     label?: string;
-    isEv: boolean;
     lastUpdated: string;
   }>;
 }
@@ -35,13 +34,6 @@ type ZoneLean = {
   color?: string;
   noShowPenalty?: number;
 };
-
-function isElectricSpot(spot: Pick<LiveSpotDocument, "spotId" | "label">) {
-  if (spot.label?.toUpperCase().startsWith("EV-")) {
-    return true;
-  }
-  return spot.spotId.endsWith("-1") || spot.spotId.endsWith("-2");
-}
 
 export async function getLiveZoneSnapshots(): Promise<LiveZoneSnapshot[]> {
   await ensureDb();
@@ -77,7 +69,6 @@ export async function getLiveZoneSnapshots(): Promise<LiveZoneSnapshot[]> {
       spotId: spot.spotId,
       status: spot.status,
       label: spot.label,
-      isEv: isElectricSpot(spot),
       lastUpdated: spot.lastUpdated ? spot.lastUpdated.toISOString() : new Date().toISOString(),
     });
   });

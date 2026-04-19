@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { connectDb } from "@/lib/db/mongoose";
 import { getZonesWithStats } from "@/lib/services/zone";
+import GoogleMapsParkingFinder from "@/components/driver/GoogleMapsParkingFinder";
 
 export default async function DriverHomePage() {
   await connectDb();
@@ -8,6 +9,8 @@ export default async function DriverHomePage() {
 
   return (
     <div className="space-y-10">
+      <GoogleMapsParkingFinder zones={zones} />
+
       <section className="rounded-3xl bg-white border border-card-border p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-text mb-4">Nearby parking zones</h2>
         <p className="text-sm text-muted mb-6">

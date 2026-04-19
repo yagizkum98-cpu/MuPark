@@ -8,18 +8,26 @@ export default function Footer() {
   const { lang } = useLanguage();
 
   return (
-    <footer className="py-12 border-t border-cyan-900/10 bg-white/70 backdrop-blur-lg">
+    <footer className="border-t border-[color:var(--panel-border)] bg-[var(--surface-soft)] py-12 backdrop-blur-lg">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <span className="text-lg font-bold text-cyan-900">MUPark</span>
+          <span className="text-lg font-bold text-[color:var(--accent-strong)]">MUPark</span>
 
-          <div className="flex flex-col items-center md:items-end gap-4 text-muted text-sm text-center md:text-right">
-            <Link
-              href="/yatirimci-sunumu"
-              className="text-sm font-semibold text-cyan-800 hover:text-cyan-600 transition-colors"
-            >
-              {lang === "tr" ? "Yatirimci" : "Investor"}
-            </Link>
+          <div className="flex flex-col items-center gap-4 text-center text-sm text-[color:var(--muted)] md:items-end md:text-right">
+            <div className="flex flex-col items-center gap-3 md:items-end">
+              <Link
+                href="/municipality"
+                className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-cyan-500/20"
+              >
+                {lang === "tr" ? "Belediye Yonetim Paneli" : "Municipality Panel"}
+              </Link>
+              <Link
+                href="/yatirimci-sunumu"
+                className="rounded-full border border-[color:var(--panel-border)] bg-[var(--surface-strong)] px-5 py-2.5 text-sm font-semibold text-[color:var(--foreground)] transition-all hover:border-cyan-300/40 hover:bg-white/10"
+              >
+                {lang === "tr" ? "Yatirimci Paneli" : "Investor Panel"}
+              </Link>
+            </div>
             <p>
               &copy; {new Date().getFullYear()} MUPark. {lang === "tr" ? "Tum haklari saklidir." : "All rights reserved."}
             </p>

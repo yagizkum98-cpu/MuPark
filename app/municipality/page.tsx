@@ -1,125 +1,95 @@
-"use client";
+import { cookies } from "next/headers";
+import { connectDb } from "@/lib/db/mongoose";
+import { FethiyeEvent } from "@/lib/models/fethiyeEvent";
+import { FethiyeMessage } from "@/lib/models/fethiyeMessage";
+import { FethiyeNews } from "@/lib/models/fethiyeNews";
+import { FethiyeServiceRequest } from "@/lib/models/fethiyeServiceRequest";
+import MunicipalityControlCenter from "@/components/municipality/MunicipalityControlCenter";
+import { getDashboardMetrics, getRevenueAnalytics, getUsageAnalytics } from "@/lib/services/analytics";
+import { getZonesWithStats } from "@/lib/services/zone";
+import {
+  MUNICIPALITY_ACCESS_COOKIE,
+  verifyMunicipalityAccessToken,
+} from "@/lib/services/municipalityAccess";
 
-import { useEffect, useState } from "react";
+function toDateString(value?: string | Date | null) {
+  if (!value) return null;
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
+}
 
-export default function MunicipalityDashboard() {
-    const [occupancy, setOccupancy] = useState(68);
-    const [revenue, setRevenue] = useState(94200);
-    const [active, setActive] = useState(312);
+export default async function MunicipalityDashboard() {
+  const cookieStore = await cookies();
+  const access = verifyMunicipalityAccessToken(cookieStore.get(MUNICIPALITY_ACCESS_COOKIE)?.value);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setOccupancy(Math.floor(55 + Math.random() * 30));
-            setRevenue(70000 + Math.floor(Math.random() * 40000));
-            setActive(250 + Math.floor(Math.random() * 120));
-        }, 4000);
+  if (!access) {
+    return <MunicipalityControlCenter accessGranted={false} />;
+  }
 
-        return () => clearInterval(interval);
-    }, []);
+  await connectDb();
 
-    return (
-        <div className="min-h-screen font-sans bg-slate-50 text-slate-900 selection:bg-blue-100">
-            {/* Header */}
-            <header className="bg-gradient-to-br from-blue-800 to-green-600 text-white px-10 py-6 shadow-lg">
-                <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold tracking-tight">MU PARK – Belediye Yönetim Paneli</h1>
-                    <p className="mt-1.5 opacity-90 text-blue-50 font-medium">Fethiye Pilot | Canlı Demo (Simülasyon)</p>
-                </div>
-            </header>
+  const [metrics, usage, revenue, zones, requests, messages, news, events, requestCount, messageCount] =
+    await Promise.all([
+      getDashboardMetrics(),
+      getUsageAnalytics(),
+      getRevenueAnalytics(),
+      getZonesWithStats(),
+      FethiyeServiceRequest.find({}).sort({ createdAt: -1 }).limit(8).lean(),
+      FethiyeMessage.find({}).sort({ createdAt: -1 }).limit(8).lean(),
+      FethiyeNews.find({}).sort({ publishedAt: -1 }).limit(8).lean(),
+      FethiyeEvent.find({}).sort({ startsAt: 1 }).limit(8).lean(),
+      FethiyeServiceRequest.countDocuments({}),
+      FethiyeMessage.countDocuments({}),
+    ]);
 
-            <div className="max-w-7xl mx-auto p-10">
-                {/* KPI Cards */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-                    <div className="bg-white rounded-[18px] p-6 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-slate-100 hover:shadow-xl transition-shadow">
-                        <span className="text-slate-500 text-sm font-medium">Toplam Park Alanı</span>
-                        <b className="block text-4xl mt-1.5 text-blue-800 tracking-tight">1.250</b>
-                    </div>
-                    <div className="bg-white rounded-[18px] p-6 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-slate-100 hover:shadow-xl transition-shadow">
-                        <span className="text-slate-500 text-sm font-medium">Doluluk Oranı</span>
-                        <b className="block text-4xl mt-1.5 text-blue-800 tracking-tight">%{occupancy}</b>
-                    </div>
-                    <div className="bg-white rounded-[18px] p-6 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-slate-100 hover:shadow-xl transition-shadow">
-                        <span className="text-slate-500 text-sm font-medium">Günlük Gelir</span>
-                        <b className="block text-4xl mt-1.5 text-blue-800 tracking-tight">₺{revenue.toLocaleString("tr-TR")}</b>
-                    </div>
-                    <div className="bg-white rounded-[18px] p-6 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-slate-100 hover:shadow-xl transition-shadow">
-                        <span className="text-slate-500 text-sm font-medium">Aktif Rezervasyon</span>
-                        <b className="block text-4xl mt-1.5 text-blue-800 tracking-tight">{active}</b>
-                    </div>
-                </section>
-
-                {/* Status Table */}
-                <section className="bg-white rounded-[18px] p-8 shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-slate-100">
-                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-slate-800">
-                        <span>📍</span> Bölge Bazlı Park Durumu
-                    </h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-slate-200">
-                                    <th className="py-4 px-4 text-slate-500 text-sm font-semibold uppercase tracking-wider">Bölge</th>
-                                    <th className="py-4 px-4 text-slate-500 text-sm font-semibold uppercase tracking-wider">Toplam Alan</th>
-                                    <th className="py-4 px-4 text-slate-500 text-sm font-semibold uppercase tracking-wider">Dolu</th>
-                                    <th className="py-4 px-4 text-slate-500 text-sm font-semibold uppercase tracking-wider">Doluluk</th>
-                                    <th className="py-4 px-4 text-slate-500 text-sm font-semibold uppercase tracking-wider">Durum</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                <tr className="group hover:bg-slate-50/50 transition-colors">
-                                    <td className="py-4 px-4 font-medium text-slate-700">Merkez Çarşı</td>
-                                    <td className="py-4 px-4 text-slate-600">300</td>
-                                    <td className="py-4 px-4 text-slate-600">255</td>
-                                    <td className="py-4 px-4 text-slate-600">%85</td>
-                                    <td className="py-4 px-4">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
-                                            Yoğun
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr className="group hover:bg-slate-50/50 transition-colors">
-                                    <td className="py-4 px-4 font-medium text-slate-700">Sahil Yolu</td>
-                                    <td className="py-4 px-4 text-slate-600">420</td>
-                                    <td className="py-4 px-4 text-slate-600">260</td>
-                                    <td className="py-4 px-4 text-slate-600">%62</td>
-                                    <td className="py-4 px-4">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-100">
-                                            Orta
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr className="group hover:bg-slate-50/50 transition-colors">
-                                    <td className="py-4 px-4 font-medium text-slate-700">Otogar Bölgesi</td>
-                                    <td className="py-4 px-4 text-slate-600">280</td>
-                                    <td className="py-4 px-4 text-slate-600">140</td>
-                                    <td className="py-4 px-4 text-slate-600">%50</td>
-                                    <td className="py-4 px-4">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-100">
-                                            Uygun
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr className="group hover:bg-slate-50/50 transition-colors">
-                                    <td className="py-4 px-4 font-medium text-slate-700">Hastane Çevresi</td>
-                                    <td className="py-4 px-4 text-slate-600">250</td>
-                                    <td className="py-4 px-4 text-slate-600">190</td>
-                                    <td className="py-4 px-4 text-slate-600">%76</td>
-                                    <td className="py-4 px-4">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-100">
-                                            Orta
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                {/* Footer */}
-                <footer className="mt-12 text-center text-slate-500 text-sm">
-                    <p className="font-semibold">MU PARK · Smart Parking for Smart Cities</p>
-                    <p className="mt-1 opacity-75">Demo panel – gerçek zamanlı sistem simülasyonu</p>
-                </footer>
-            </div>
-        </div>
-    );
+  return (
+    <MunicipalityControlCenter
+      accessGranted
+      data={{
+        metrics,
+        usage,
+        revenue,
+        zones,
+        citizen: {
+          requestCount,
+          messageCount,
+          requests: requests.map((item: any) => ({
+            id: item._id.toString(),
+            fullName: item.fullName,
+            neighborhood: item.neighborhood,
+            type: item.type,
+            description: item.description,
+            status: item.status,
+            createdAt: toDateString(item.createdAt),
+          })),
+          messages: messages.map((item: any) => ({
+            id: item._id.toString(),
+            fullName: item.fullName,
+            phone: item.phone ?? null,
+            email: item.email ?? null,
+            message: item.message,
+            createdAt: toDateString(item.createdAt),
+          })),
+        },
+        content: {
+          news: news.map((item: any) => ({
+            id: item._id.toString(),
+            title: item.title,
+            category: item.category,
+            isActive: item.isActive,
+            publishedAt: toDateString(item.publishedAt),
+          })),
+          events: events.map((item: any) => ({
+            id: item._id.toString(),
+            title: item.title,
+            location: item.location,
+            category: item.category,
+            isActive: item.isActive,
+            startsAt: toDateString(item.startsAt),
+          })),
+        },
+      }}
+    />
+  );
 }

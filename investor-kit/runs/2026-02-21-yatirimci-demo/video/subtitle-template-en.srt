@@ -16,7 +16,7 @@ Municipality teams monitor operations in a single live dashboard.
 
 5
 00:00:50,000 --> 00:01:05,000
-EV corner campaigns support sustainable mobility.
+Phase one focuses on smart parking reservation and live occupancy management.
 
 6
 00:01:05,000 --> 00:01:15,000

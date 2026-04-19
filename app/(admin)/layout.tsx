@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <p className="text-xs uppercase tracking-[0.3rem] text-muted font-semibold">
             MU PARK Admin
           </p>
-          <p className="text-xl font-semibold text-text">Smart Parking Pilot</p>
+          <p className="text-xl font-semibold text-text">Akilli Park Yonetim Merkezi</p>
         </div>
         <div className="flex items-center gap-3">
           {user ? (
