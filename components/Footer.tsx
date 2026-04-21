@@ -19,17 +19,17 @@ export default function Footer() {
                 href="/municipality"
                 className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-cyan-500/20"
               >
-                {lang === "tr" ? "Belediye Yonetim Paneli" : "Municipality Panel"}
+                {lang === "tr" ? "Belediye Yönetim Paneli" : "Municipality Panel"}
               </Link>
               <Link
                 href="/yatirimci-sunumu"
                 className="rounded-full border border-[color:var(--panel-border)] bg-[var(--surface-strong)] px-5 py-2.5 text-sm font-semibold text-[color:var(--foreground)] transition-all hover:border-cyan-300/40 hover:bg-white/10"
               >
-                {lang === "tr" ? "Yatirimci Paneli" : "Investor Panel"}
+                {lang === "tr" ? "Yatırımcı Paneli" : "Investor Panel"}
               </Link>
             </div>
             <p>
-              &copy; {new Date().getFullYear()} MUPark. {lang === "tr" ? "Tum haklari saklidir." : "All rights reserved."}
+              &copy; {new Date().getFullYear()} MUPark. {lang === "tr" ? "Tüm hakları saklıdır." : "All rights reserved."}
             </p>
             <div className="flex items-center justify-center md:justify-end gap-4">
               <a href="#" className="hover:text-cyan-400 transition-colors" aria-label="Twitter">

@@ -8,32 +8,32 @@ const trFeatures = [
   {
     icon: Brain,
     title: "Yapay Zeka Destekli Takip",
-    description: "Tek bir kamera ile genis alanlardaki doluluk oranini yuksek dogrulukla analiz eder.",
+    description: "Tek bir kamera ile geniş alanlardaki doluluk oranını yüksek doğrulukla analiz eder.",
   },
   {
     icon: Smartphone,
     title: "Mobil Uygulama Entegrasyonu",
-    description: "Suruculer bos park yerlerini cebinden gorur, aninda rezervasyon yapar.",
+    description: "Sürücüler boş park yerlerini cebinden görür, anında rezervasyon yapar.",
   },
   {
     icon: CreditCard,
-    title: "Kolay Odeme ve Check-in",
-    description: "Dijital giris-cikis ile odemeler uygulama uzerinden otomatik tahsil edilir.",
+    title: "Kolay Ödeme ve Check-in",
+    description: "Dijital giriş-çıkış ile ödemeler uygulama üzerinden otomatik tahsil edilir.",
   },
   {
     icon: LayoutGrid,
-    title: "Anlik Doluluk Paneli",
-    description: "Yoneticiler icin detayli dashboard ile tum park hareketlerini izleyin.",
+    title: "Anlık Doluluk Paneli",
+    description: "Yöneticiler için detaylı dashboard ile tüm park hareketlerini izleyin.",
   },
   {
     icon: Map,
-    title: "Navigasyon Destegi",
-    description: "Harita entegrasyonu ile bos park yerine en kisa rotadan ulasin.",
+    title: "Navigasyon Desteği",
+    description: "Harita entegrasyonu ile boş park yerine en kısa rotadan ulaşın.",
   },
   {
     icon: Zap,
-    title: "Elektronik Duba Yonetimi",
-    description: "Rezerve edilen alanlar icin dubalar otomatik kontrol edilir, yetkisiz parki onler.",
+    title: "Elektronik Duba Yönetimi",
+    description: "Rezerve edilen alanlar için dubalar otomatik kontrol edilir, yetkisiz parkı önler.",
   },
 ];
 
@@ -81,7 +81,7 @@ export default function Features() {
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             {lang === "tr" ? (
               <>
-                Akilli Otoparkin <span className="text-cyan-400">Guclu Ozellikleri</span>
+                Akıllı Otoparkın <span className="text-cyan-400">Güçlü Özellikleri</span>
               </>
             ) : (
               <>
@@ -91,7 +91,7 @@ export default function Features() {
           </h2>
           <p className="text-muted text-lg">
             {lang === "tr"
-              ? "Geleneksel otopark sorunlarini modern teknoloji ile cozuyoruz."
+              ? "Geleneksel otopark sorunlarını modern teknoloji ile çözüyoruz."
               : "We solve traditional parking problems with modern technology."}
           </p>
         </div>

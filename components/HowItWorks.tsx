@@ -8,22 +8,22 @@ const trSteps = [
   {
     icon: Search,
     title: "1. Park Yeri Bul",
-    description: "Uygulamadan bolgenizdeki musait park alanlarini listeleyin.",
+    description: "Uygulamadan bölgenizdeki müsait park alanlarını listeleyin.",
   },
   {
     icon: CalendarCheck,
     title: "2. Rezervasyon Yap",
-    description: "Size uygun yeri secin ve saniyeler icinde rezervasyonu tamamlayin.",
+    description: "Size uygun yeri seçin ve saniyeler içinde rezervasyonu tamamlayın.",
   },
   {
     icon: Navigation,
-    title: "3. Rotani Olustur",
-    description: "Navigasyon destegi ile zaman kaybetmeden park yerine ulasin.",
+    title: "3. Rotanı Oluştur",
+    description: "Navigasyon desteği ile zaman kaybetmeden park yerine ulaşın.",
   },
   {
     icon: QrCode,
     title: "4. Park Et",
-    description: "Giris onayi ile park alanina gecin ve aracinizi guvenle park edin.",
+    description: "Giriş onayı ile park alanına geçin ve aracınızı güvenle park edin.",
   },
 ];
 
@@ -61,10 +61,10 @@ export default function HowItWorks() {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            {lang === "tr" ? "Nasil Calisir?" : "How It Works"}
+            {lang === "tr" ? "Nasıl Çalışır?" : "How It Works"}
           </h2>
           <p className="text-muted">
-            {lang === "tr" ? "4 adimda sorunsuz park deneyimi." : "A seamless parking flow in 4 steps."}
+            {lang === "tr" ? "4 adımda sorunsuz park deneyimi." : "A seamless parking flow in 4 steps."}
           </p>
         </div>
 

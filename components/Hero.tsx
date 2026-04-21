@@ -2,33 +2,27 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, Car, MessageCircle, ShieldCheck, Zap } from "lucide-react";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function Hero() {
   const { lang } = useLanguage();
-  const handleDemoScroll = useCallback(() => {
-    const demoSection = document.getElementById("demo");
-    if (demoSection) {
-      demoSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
 
   const copy = useMemo(
     () =>
       lang === "tr"
         ? {
-            badge: "Akilli Sehir Teknolojisi",
-            titleA: "Park Yonetiminin",
-            titleB: "Gelecegi Burada",
-            desc: "Yapay zeka destekli goruntu isleme ile otopark dolulugunu anlik takip edin, rezervasyon yapin ve sehir ici trafigi azaltin.",
-            demo: "Demo Paneli",
-            whatsapp: "WhatsApp'tan Ulas",
+            badge: "Akıllı Şehir Teknolojisi",
+            titleA: "Park Yönetiminin",
+            titleB: "Geleceği Burada",
+            desc: "Yapay zekâ destekli görüntü işleme ile otopark doluluğunu anlık takip edin, rezervasyon yapın ve şehir içi trafiği azaltın.",
+            demo: "4 Adımlı Hikaye",
+            whatsapp: "WhatsApp'tan Ulaş",
             stats: [
-              { label: "Park Alani", value: "20+", icon: ShieldCheck },
-              { label: "AI Dogruluk", value: "%99", icon: Zap },
-              { label: "Anlik Takip", value: "7/24", icon: Car },
-              { label: "MVP Suresi", value: "6 Hafta", icon: ArrowRight },
+              { label: "Park Alanı", value: "20+", icon: ShieldCheck },
+              { label: "AI Doğruluğu", value: "%99", icon: Zap },
+              { label: "Anlık Takip", value: "7/24", icon: Car },
+              { label: "MVP Süresi", value: "6 Hafta", icon: ArrowRight },
             ],
           }
         : {
@@ -36,7 +30,7 @@ export default function Hero() {
             titleA: "Future of Parking",
             titleB: "Management Is Here",
             desc: "Track parking occupancy in real time with AI-powered vision, make reservations, and reduce urban traffic.",
-            demo: "Demo Panel",
+            demo: "4-Step Story",
             whatsapp: "Reach via WhatsApp",
             stats: [
               { label: "Parking Zones", value: "20+", icon: ShieldCheck },
@@ -50,7 +44,7 @@ export default function Hero() {
 
   const whatsappHref =
     lang === "tr"
-      ? "https://wa.me/?text=Merhaba%2C%20MuPark%20belediye%20yonetim%20paneli%20hakkinda%20bilgi%20almak%20istiyorum."
+      ? "https://wa.me/?text=Merhaba%2C%20MuPark%20belediye%20y%C3%B6netim%20paneli%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
       : "https://wa.me/?text=Hello%2C%20I%20would%20like%20to%20get%20information%20about%20the%20MuPark%20municipality%20management%20panel.";
 
   return (
@@ -86,7 +80,7 @@ export default function Hero() {
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <button
               type="button"
-              onClick={handleDemoScroll}
+              onClick={() => window.dispatchEvent(new Event("mupark:open-entry-story"))}
               className="flex w-full items-center justify-center gap-2 rounded-full border border-cyan-300/40 bg-gradient-to-r from-cyan-400 to-sky-500 px-8 py-4 text-lg font-bold text-slate-950 shadow-[0_0_28px_rgba(34,211,238,0.26)] transition-all hover:scale-105 hover:shadow-[0_0_34px_rgba(34,211,238,0.45)] active:scale-95 sm:w-auto"
             >
               {copy.demo}

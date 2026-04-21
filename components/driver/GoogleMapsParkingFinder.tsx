@@ -47,15 +47,15 @@ export default function GoogleMapsParkingFinder({ zones }: { zones: ParkingZone[
     lang === "tr"
       ? {
           badge: "Google Maps",
-          title: "Haritada park yeri bul",
-          description: "Musait park alanini sec, konumu haritada incele ve Google Maps ile dogrudan rota olustur.",
-          startNavigation: "Navigasyonu Baslat",
+          title: "Haritada Park Yeri Bul",
+          description: "Müsait park alanını seç, konumu haritada incele ve Google Maps ile doğrudan rota oluştur.",
+          startNavigation: "Navigasyonu Başlat",
           block: "Blok",
-          availableSpots: "bos yer",
+          availableSpots: "boş yer",
           occupied: "dolu",
           hourlyRate: "TL / saat",
           coordinates: "Koordinat",
-          openInMaps: "Google Maps'te Ac",
+          openInMaps: "Google Maps'te Aç",
           getDirections: "Yol Tarifi Al",
           iframeTitle: "Google Maps konumu",
         }

@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import EntryGamification from "@/components/EntryGamification";
+import LandingEntryStoryModal from "@/components/LandingEntryStoryModal";
 import SmartCityStoryAnimation from "@/components/SmartCityStoryAnimation";
 import CorporateHub from "@/components/CorporateHub";
 import LiveDemo from "@/components/LiveDemo";
@@ -23,8 +23,8 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground relative selection:bg-cyan-500/30">
       <Navbar />
-      <EntryGamification />
       <Hero />
+      <LandingEntryStoryModal />
       <SmartCityStoryAnimation />
       <section id="demo" className="relative px-6 pb-6 pt-4 md:px-8">
         <div className="mx-auto max-w-7xl">

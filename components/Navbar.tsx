@@ -36,16 +36,18 @@ export default function Navbar() {
     () =>
       lang === "tr"
         ? {
-            srHome: "MU Park ana sayfa",
-            download: "Uygulamayi Indir",
-            live: "Canli Yayin",
+            srHome: "MU Park ana sayfası",
+            home: "Anasayfa",
+            download: "Uygulamayı İndir",
+            live: "Canlı Yayın",
             corporate: "Kurumsal",
             demo: "Demo",
-            day: "Gunduz",
+            day: "Gündüz",
             night: "Gece",
           }
         : {
             srHome: "MU Park home page",
+            home: "Home",
             download: "Download App",
             live: "Live Stream",
             corporate: "Corporate",
@@ -57,8 +59,9 @@ export default function Navbar() {
   );
 
   const navLinks = [
-    { name: copy.corporate, href: "#corporate" },
-    { name: copy.demo, href: "#demo" },
+    { name: copy.home, href: "/" },
+    { name: copy.corporate, href: "/#corporate" },
+    { name: copy.demo, href: "/#demo" },
     { name: copy.live, href: "/canli-yayin" },
   ];
 

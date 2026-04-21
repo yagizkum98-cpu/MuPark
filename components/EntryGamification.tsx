@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Flag, Lightbulb, ShieldCheck, Target } from "lucide-react";
+import { ArrowRight, CheckCircle2, Flag, Lightbulb, ShieldCheck, Target, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -17,37 +17,37 @@ const trSteps: Array<{
   {
     id: 1,
     title: "1. Problem",
-    subtitle: "Surucu park yeri ararken zaman kaybediyor",
+    subtitle: "Sürücü park yeri ararken zaman kaybediyor",
     detail:
-      "Pik saatlerde suruculer park yeri bulmak icin ortalama 12-18 dakika dolasiyor. Bu trafik ve yakit kaybini buyutuyor.",
+      "Pik saatlerde sürücüler park yeri bulmak için ortalama 12-18 dakika dolaşıyor. Bu trafik ve yakıt kaybını büyütüyor.",
     reward: "+25 XP Sorun Tespiti",
     icon: Target,
   },
   {
     id: 2,
     title: "2. Etki",
-    subtitle: "Belediye gec veri ile yonetim yapiyor",
+    subtitle: "Belediye geç veri ile yönetim yapıyor",
     detail:
-      "Doluluk ve ihlal verisi gec geldiginde yonlendirme, fiyatlama ve saha kararlari reaktif kaliyor.",
+      "Doluluk ve ihlal verisi geç geldiğinde yönlendirme, fiyatlama ve saha kararları reaktif kalıyor.",
     reward: "+25 XP Etki Analizi",
     icon: Flag,
   },
   {
     id: 3,
-    title: "3. Cozum",
-    subtitle: "Canli doluluk + rezervasyon + akilli yonlendirme",
+    title: "3. Çözüm",
+    subtitle: "Canlı doluluk + rezervasyon + akıllı yönlendirme",
     detail:
-      "Surucu uygulamadan bos yeri gorur, rezervasyon yapar ve rotayi takip ederek dogrudan hedefe gider.",
-    reward: "+25 XP Cozum Tasarimi",
+      "Sürücü uygulamadan boş yeri görür, rezervasyon yapar ve rotayı takip ederek doğrudan hedefe gider.",
+    reward: "+25 XP Çözüm Tasarımı",
     icon: Lightbulb,
   },
   {
     id: 4,
-    title: "4. Problem Dogrulama",
-    subtitle: "KPI ile sonuc kanitlanir",
+    title: "4. Sonuç Doğrulama",
+    subtitle: "KPI ile sonuç kanıtlanır",
     detail:
-      "Pilot bolgede arama suresi duser, doluluk tahmini stabil kalir, no-show ve ihlal oranlari olculebilir sekilde azalir.",
-    reward: "+25 XP Dogrulama",
+      "Pilot bölgede arama süresi düşer, doluluk tahmini stabil kalır, no-show ve ihlal oranları ölçülebilir şekilde azalır.",
+    reward: "+25 XP Doğrulama",
     icon: ShieldCheck,
   },
 ];
@@ -98,7 +98,12 @@ const enSteps: Array<{
   },
 ];
 
-export default function EntryGamification() {
+type EntryGamificationProps = {
+  variant?: "section" | "modal";
+  onClose?: () => void;
+};
+
+export default function EntryGamification({ variant = "section", onClose }: EntryGamificationProps) {
   const { lang } = useLanguage();
   const storySteps = lang === "tr" ? trSteps : enSteps;
   const [currentStep, setCurrentStep] = useState(0);
@@ -112,6 +117,7 @@ export default function EntryGamification() {
 
   const handleNext = () => {
     if (isLast) {
+      onClose?.();
       const demoSection = document.getElementById("demo");
       if (demoSection) {
         demoSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -122,43 +128,64 @@ export default function EntryGamification() {
   };
 
   return (
-    <section id="gorev-akisi" className="neon-grid relative overflow-hidden py-20">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(6,182,212,0.12),transparent_45%)]" />
-      <div className="container relative z-10 mx-auto px-6">
+    <section
+      id="gorev-akisi"
+      className={cn(
+        "relative overflow-hidden",
+        variant === "section" ? "neon-grid py-20" : "max-h-[85vh] overflow-y-auto rounded-3xl border border-[color:var(--panel-border)] bg-[var(--surface)] p-5 md:p-7"
+      )}
+    >
+      {variant === "section" && <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(6,182,212,0.12),transparent_45%)]" />}
+      <div className={cn("relative z-10", variant === "section" ? "container mx-auto px-6" : "") }>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="neon-shell mx-auto max-w-5xl rounded-3xl p-6 md:p-8"
+          className={cn(
+            "rounded-3xl",
+            variant === "section" ? "neon-shell mx-auto max-w-5xl p-6 md:p-8" : ""
+          )}
         >
           <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-[color:var(--accent-strong)]">
-                {lang === "tr" ? "Giriste Oyunlastirma" : "Gamified Entry"}
+                {lang === "tr" ? "Girişte Oyunlaştırma" : "Gamified Entry"}
               </p>
               <h2 className="mt-2 text-3xl font-bold text-[color:var(--hero-title)] md:text-4xl">
-                {lang === "tr" ? "4 Adimli Girisim Hikayesi" : "4-Step Venture Story"}
+                {lang === "tr" ? "4 Adımlı Girişim Hikâyesi" : "4-Step Venture Story"}
               </h2>
               <p className="mt-2 text-sm text-[color:var(--muted)] md:text-base">
                 {lang === "tr"
-                  ? "Sayfa acildiginda sistem problemi, etkisini, cozumu ve sonuc dogrulamasini adim adim anlatir."
+                  ? "Sayfa açıldığında sistem problemi, etkisini, çözümü ve sonuç doğrulamasını adım adım anlatır."
                   : "On page load, the system narrates the problem, impact, solution, and KPI validation step by step."}
               </p>
             </div>
-            <div className="min-w-56 rounded-2xl border border-cyan-300/30 bg-cyan-400/10 p-4 shadow-[0_0_32px_rgba(34,211,238,0.12)]">
-              <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--accent-strong)]">
-                {lang === "tr" ? "Giris Durumu" : "Entry Progress"}
-              </p>
-              <p className="mt-2 text-3xl font-extrabold text-[color:var(--hero-title)]">%{completionRate}</p>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-950/20">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${completionRate}%` }}
-                  transition={{ duration: 0.35 }}
-                  className="h-full bg-gradient-to-r from-cyan-400 to-blue-500"
-                />
+            <div className="flex items-start gap-3">
+              <div className="min-w-56 rounded-2xl border border-cyan-300/30 bg-cyan-400/10 p-4 shadow-[0_0_32px_rgba(34,211,238,0.12)]">
+                <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--accent-strong)]">
+                  {lang === "tr" ? "Giriş Durumu" : "Entry Progress"}
+                </p>
+                <p className="mt-2 text-3xl font-extrabold text-[color:var(--hero-title)]">%{completionRate}</p>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-950/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${completionRate}%` }}
+                    transition={{ duration: 0.35 }}
+                    className="h-full bg-gradient-to-r from-cyan-400 to-blue-500"
+                  />
+                </div>
               </div>
+              {variant === "modal" && onClose && (
+                <button
+                  type="button"
+                  aria-label={lang === "tr" ? "Kapat" : "Close"}
+                  onClick={onClose}
+                  className="rounded-xl border border-[color:var(--panel-border)] p-2 text-[color:var(--foreground)] transition hover:bg-white/10"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -195,7 +222,7 @@ export default function EntryGamification() {
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-[color:var(--accent-strong)]">
                     <active.icon className="h-3.5 w-3.5" />
-                    {lang === "tr" ? `Adim ${active.id}` : `Step ${active.id}`}
+                    {lang === "tr" ? `Adım ${active.id}` : `Step ${active.id}`}
                   </div>
                   <h3 className="mt-4 text-2xl font-bold text-[color:var(--hero-title)] md:text-3xl">{active.subtitle}</h3>
                   <p className="mt-3 max-w-3xl text-sm text-[color:var(--muted)] md:text-base">{active.detail}</p>
@@ -211,10 +238,10 @@ export default function EntryGamification() {
             <p className="text-sm text-[color:var(--muted)]">
               {isLast
                 ? lang === "tr"
-                  ? "Girisim hikayesi tamamlandi. Ziyaretci simdi demo ve ozelliklere gecmeye hazir."
+                  ? "Girişim hikâyesi tamamlandı. Ziyaretçi şimdi demo ve özelliklere geçmeye hazır."
                   : "Venture story completed. The visitor is now ready to move to demo and features."
                 : lang === "tr"
-                  ? "Sonraki adim ile hikayeyi ilerlet."
+                  ? "Sonraki adım ile hikâyeyi ilerlet."
                   : "Proceed to the next step to advance the story."}
             </p>
             <div className="flex items-center gap-2">
@@ -229,7 +256,7 @@ export default function EntryGamification() {
                 onClick={handleNext}
                 className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.24)] transition hover:bg-cyan-300"
               >
-                {isLast ? (lang === "tr" ? "Tamamlandi" : "Completed") : lang === "tr" ? "Sonraki Adim" : "Next Step"}
+                {isLast ? (lang === "tr" ? "Tamamlandı" : "Completed") : lang === "tr" ? "Sonraki Adım" : "Next Step"}
                 {!isLast && <ArrowRight className="h-4 w-4" />}
               </button>
             </div>
